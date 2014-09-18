@@ -2,8 +2,8 @@ require_relative "config/init"
 
 api = Fortune::ExRateApi.new
 
-namespace :store do
-  task :daily do
-    puts api.daily
+namespace :db_store do
+  task :latest do
+    puts api.latest
   end
 end

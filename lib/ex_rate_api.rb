@@ -14,7 +14,7 @@ module Fortune
 
     end
 
-    def daily
+    def latest
       _api("latest")
     end
 

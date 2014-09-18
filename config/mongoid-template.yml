@@ -1,0 +1,13 @@
+test:
+  sessions:
+    default:
+      database: fortune
+      hosts:
+        - localhost:27017
+
+development:
+  sessions:
+    default:
+      database: fortune
+      hosts:
+        - localhost:27017

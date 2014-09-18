@@ -1,2 +1,2 @@
 ## How to run
-    bundle exec rake store:daily
+    bundle exec rake -P   # to see all rake tasks

@@ -1,8 +1,9 @@
 module Fortune
   class ExRateApi
+    BASE_URL = "http://openexchangerates.org/api/"
+    API_ID   = ENV["EX_RATE_API_ID"]
+
     def initialize
-      BASE_URL = "http://openexchangerates.org/api/"
-      API_ID   = ENV["EX_RATE_API_ID"]
     end
 
     def currencies
@@ -19,7 +20,11 @@ module Fortune
 
     private
     def _api(api, params={})
-      RestClient.get("#{BASE_URL}#{api}.json", params.merge({app_id: API_ID}))
+      url  = "#{BASE_URL}#{api}.json?app_id=#{API_ID}"
+      
+      puts "Calling #{url}"
+      
+      resp = RestClient.get("#{url}")
       JSON.parse(resp.body)
     end
   end

@@ -6,5 +6,6 @@ class DailyRate
 
   field :currency,    type: String
   field :price,       type: String
+  field :date,        type: Date
 end
 

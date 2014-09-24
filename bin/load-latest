@@ -1,6 +1,8 @@
 #! /bin/bash
 
+echo "====================== START: `date` ========================"
 source /home/fortune/.rvm/scripts/rvm
 cd /srv/fortune
 rvm use ruby-2.1.2@fortune
 bundle exec rake load:latest
+echo "====================== END: `date` ========================"

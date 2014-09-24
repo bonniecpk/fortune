@@ -1,6 +1,6 @@
 namespace :load do
   task :latest do
-    rates = api.latest["rates"]
+    rates = @@api.latest["rates"]
     rates.each do |currency, price|
       daily_rate = DailyRate.new(currency:  currency,
                                  price:     price,
@@ -14,7 +14,7 @@ namespace :load do
   end
 
   task :currencies do
-    currencies = api.currencies
+    currencies = @@api.currencies
     currencies.each do |symbol, name|
       currency = Currency.new(symbol: symbol,
                               name:   name)

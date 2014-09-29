@@ -30,9 +30,9 @@ class DailyRate
                           price:     price,
                           date:      date)
     if daily_rate.save
-      puts "## Daily Rate saved with ID #{daily_rate.id}, currency: #{currency}, price: #{price}"
+      puts "## Daily Rate saved with ID #{daily_rate.id}, currency: #{currency}, price: #{price}, date: #{date}"
     else
-      puts "## Failed to save daily rate, currency: #{currency}, price: #{price}"
+      puts "## Failed to save daily rate, currency: #{currency}, price: #{price}, date: #{date}"
     end
   end
 end

@@ -1,28 +1,22 @@
 namespace :load do
   task :latest do
     rates = @@api.latest["rates"]
-    rates.each do |currency, price|
-      daily_rate = DailyRate.new(currency:  currency,
-                                 price:     price,
-                                 date:      Date.today)
-      if daily_rate.save
-        puts "## Daily Rate saved with ID #{daily_rate.id}, currency: #{currency}, price: #{price}"
-      else
-        puts "## Failed to save daily rate, currency: #{currency}, price: #{price}"
-      end
-    end
+    rates.each { |currency, price| DailyRate.load_today(currency, price) }
   end
 
   task :currencies do
     currencies = @@api.currencies
-    currencies.each do |symbol, name|
-      currency = Currency.new(symbol: symbol,
-                              name:   name)
-      if currency.save
-        puts "## Currency saved with ID #{currency.id}, symbol: #{symbol}, name: #{name}"
-      else
-        puts "## Failed to save currency, symbol: #{symbol}, name: #{name}"
-      end
+    currencies.each { |symbol, name| Currency.load(name, symbol) }
+  end
+
+  task :history do
+    start_date = Date.strptime(ask("Start? (YYYY-mm-dd)"), "%Y-%m-%d")
+    num_days   = ask("# of days? ").to_i
+    dates      = start_date..(start_date + (num_days-1).days)
+
+    dates.each do |date|
+      rates = @@api.historical(date)["rates"]
+      rates.each { |currency, price| DailyRate.load(currency, price, date) }
     end
   end
 end

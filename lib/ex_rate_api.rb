@@ -10,8 +10,8 @@ module Fortune
       _api("currencies")
     end
 
-    def historial(date)
-
+    def historical(date)
+      _api("historical/#{date.strftime("%Y-%m-%d")}")
     end
 
     def latest

@@ -6,3 +6,7 @@ gem 'dotenv'
 gem 'mongoid'
 gem 'highline'
 gem 'awesome_print'
+
+group :development do
+  gem 'pry'
+end

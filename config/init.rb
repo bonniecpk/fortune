@@ -1,3 +1,5 @@
+ENV["RACK_ENV"] ||= "development"
+
 ############### Loading gems ###############
 require "rest-client"
 require "bson"
@@ -6,14 +8,18 @@ require "mongoid"
 require "highline/import"
 require "awesome_print"
 require "dotenv"
-
-ENV["RACK_ENV"] ||= "development"
+require "pry" if ENV["RACK_ENV"] == 'development'
 
 Dotenv.load
 
+unless File.directory?("logs")
+  require 'fileutils'
+  FileUtils.mkdir_p("logs")
+end
+
 Mongoid.load!("config/mongoid.yml") #Dotenv.load must be run first
-Mongoid.logger = Logger.new($stdout)
-Moped.logger   = Logger.new($stdout)
+Mongoid.logger = Logger.new("logs/mongo.log")
+Moped.logger   = Logger.new("logs/mongo.log")
 
 Moped::BSON = BSON  # Needed before initializing models directory
 

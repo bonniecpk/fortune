@@ -23,6 +23,8 @@ Moped.logger   = Logger.new("logs/mongo.log")
 
 Moped::BSON = BSON  # Needed before initializing models directory
 
+require_relative "../models/util"
+
 ############### Loading custom libraries ###############
 lib = Dir["{lib,models}/**/*.rb"]
 

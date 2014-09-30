@@ -1,24 +1,22 @@
-class Currency
-  include Mongoid::Document
-  include Mongoid::Timestamps
+module Fortune
+  class Currency
+    include Mongoid::Document
+    include Mongoid::Timestamps
 
-  store_in collection: "currencies"
+    store_in collection: "currencies"
 
-  field :name,       type: String
-  field :symbol,     type: String
+    field :name,       type: String
+    field :symbol,     type: String
 
-  def self.load(name, symbol)
-    if where(symbol: symbol).exists?
-      puts "## Skipping #{name} (#{symbol})..."
-      return
-    end
+    validates_uniqueness_of :symbol
 
-    currency = self.new(symbol: symbol, name: name)
-    if currency.save
-      puts "## Currency saved with ID #{currency.id}, symbol: #{symbol}, name: #{name}"
-    else
-      puts "## Failed to save currency, symbol: #{symbol}, name: #{name}"
+    def self.load(name, symbol)
+      currency = self.new(symbol: symbol, name: name)
+      if currency.save
+        puts "## Currency saved with ID #{currency.id}, symbol: #{symbol}, name: #{name}"
+      else
+        puts "## Skipping #{name} (#{symbol})..."
+      end
     end
   end
 end
-

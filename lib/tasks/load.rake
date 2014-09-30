@@ -1,12 +1,12 @@
 namespace :load do
   task :latest do
     rates = @@api.latest["rates"]
-    rates.each { |currency, price| DailyRate.load_today(currency, price) }
+    rates.each { |currency, price| Fortune::DailyRate.load_today(currency, price) }
   end
 
   task :currencies do
     currencies = @@api.currencies
-    currencies.each { |symbol, name| Currency.load(name, symbol) }
+    currencies.each { |symbol, name| Fortune::Currency.load(name, symbol) }
   end
 
   task :history do
@@ -16,7 +16,7 @@ namespace :load do
 
     dates.each do |date|
       rates = @@api.historical(date)["rates"]
-      rates.each { |currency, price| DailyRate.load(currency, price, date) }
+      rates.each { |currency, price| Fortune::DailyRate.load(currency, price, date) }
     end
   end
 end

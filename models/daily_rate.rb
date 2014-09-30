@@ -1,39 +1,34 @@
-class DailyRate
-  include Mongoid::Document
-  include Mongoid::Timestamps
+module Fortune
+  class DailyRate
+    include Mongoid::Document
+    include Mongoid::Timestamps
+    include ActiveModel::Validations
+    extend  Fortune::Util
 
-  store_in collection: "daily_rates"
+    store_in collection: "daily_rates"
 
-  field :currency,    type: String
-  field :price,       type: String
-  field :date,        type: Date
+    field :currency,    type: String
+    field :price,       type: String
+    field :date,        type: Date
 
-  def self.exists_today?(currency)
-    self.exists?(currency, Date.today)
-  end
+    validates_uniqueness_of :currency, scope: :date
 
-  def self.exists?(currency, date)
-    where(currency: currency, date: date..date+1).exists?
-  end
+    class << self
+      def load_today(currency, price)
+        self.load(currency, price, Date.today)
+      end
 
-  def self.load_today(currency, price)
-    self.load(currency, price, Date.today)
-  end
-
-  def self.load(currency, price, date)
-    if exists?(currency, date)
-      puts "## Skipping #{currency} #{date}..."
-      return
+      def load(currency, price, date)
+        daily_rate = self.new(currency:  currency,
+                              price:     price,
+                              date:      date)
+        if daily_rate.save
+          puts "## Daily Rate saved with ID #{daily_rate.id}, date: #{date}, currency: #{currency}, price: #{price}"
+        else
+          puts "## Skipping #{currency} #{date}..."
+        end
+      end
     end
 
-    daily_rate = self.new(currency:  currency,
-                          price:     price,
-                          date:      date)
-    if daily_rate.save
-      puts "## Daily Rate saved with ID #{daily_rate.id}, currency: #{currency}, price: #{price}, date: #{date}"
-    else
-      puts "## Failed to save daily rate, currency: #{currency}, price: #{price}, date: #{date}"
-    end
   end
 end
-

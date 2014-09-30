@@ -1,18 +1,15 @@
 namespace :exec do
   task :abs do
-    max      = ask("Max/Min? ") =~ /[Mm]ax/
+    minmax   = ask("Max/Min? ").downcase
     currency = ask("Currency symbol: ")
-    query    = DailyRate.where(currency: currency)
+    query    = Fortune::DailyRate.where(currency: currency.upcase)
+    obj      = query.send("#{minmax}_obj", :price)
 
-    if max
-      puts "Max: $#{query.max(:price)}"
-    else
-      puts "Min: $#{query.min(:price)}"
-    end
+    puts "#{minmax}: #{obj.date} $#{obj.price}"
   end
 
   task :currencies do
-    Currency.each do |c|
+    Fortune::Currency.each do |c|
       puts "#{c.name}: #{c.symbol}"
     end
   end

@@ -40,6 +40,8 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    pry-nav (0.2.4)
+      pry (>= 0.9.10, < 0.11.0)
     rake (10.3.2)
     rest-client (1.7.2)
       mime-types (>= 1.16, < 3.0)
@@ -58,5 +60,6 @@ DEPENDENCIES
   highline
   mongoid
   pry
+  pry-nav
   rake
   rest-client

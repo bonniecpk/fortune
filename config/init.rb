@@ -8,7 +8,7 @@ require "mongoid"
 require "highline/import"
 require "awesome_print"
 require "dotenv"
-require "pry" if ENV["RACK_ENV"] == 'development'
+require "pry" if ENV["RACK_ENV"] == 'development' || ENV['RACK_ENV'] == 'test'
 
 Dotenv.load
 

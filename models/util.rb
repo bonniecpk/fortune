@@ -5,7 +5,7 @@ module Fortune
         result = nil
 
         self.each do |obj|
-          result = obj if result.nil? || (result.try(col) <=> obj.price) == (meth == "max" ? 1 : -1) 
+          result = obj if result.nil? || (result.try(col) <=> obj.price) == (meth == "max" ? -1 : 1) 
         end
 
         result

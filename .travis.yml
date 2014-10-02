@@ -1,0 +1,15 @@
+language: ruby
+rvm:
+  - 2.1.2
+  - 2.0.0
+  - 1.9.3
+  - jruby-19mode
+  - rbx-2
+  - ruby-head
+  - jruby-head
+services:
+  - mongodb
+
+
+before_script:
+  - cp config/mongoid-template.yml config/mongoid.yml

@@ -1,11 +1,14 @@
 source 'http://rubygems.org'
 
-gem 'rake'
 gem 'rest-client'
 gem 'dotenv'
 gem 'mongoid'
 gem 'highline'
 gem 'awesome_print'
+
+group :development, :test do
+  gem 'rake'
+end
 
 group :development do
   gem 'pry'

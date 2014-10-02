@@ -9,7 +9,8 @@ rvm:
   - jruby-head
 services:
   - mongodb
-
+notifications:
+  - poki.developer@gmail.com
 
 before_script:
   - cp config/mongoid-template.yml config/mongoid.yml

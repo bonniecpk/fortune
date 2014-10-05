@@ -8,7 +8,7 @@ module Fortune
     store_in collection: "daily_rates"
 
     field :currency,    type: String
-    field :price,       type: Integer
+    field :price,       type: Float
     field :date,        type: Date
 
     validates_uniqueness_of :currency, scope: :date

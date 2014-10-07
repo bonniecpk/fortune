@@ -1,1 +1,5 @@
-%h1 Control Panel
+%h3 Control Panel
+%select{name: "currency"}
+  - $.each(currencies, function(index, c) {
+  %option{value: c.symbol}=c.name
+  - });

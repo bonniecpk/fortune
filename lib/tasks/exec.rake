@@ -5,12 +5,12 @@ namespace :exec do
     query    = Fortune::DailyRate.where(currency: currency.upcase)
     obj      = query.send("#{minmax}_obj", :price)
 
-    puts "#{minmax}: #{obj.date} $#{obj.price}"
+    flogger.info "#{minmax}: #{obj.date} $#{obj.price}"
   end
 
   task :currencies do
     Fortune::Currency.each do |c|
-      puts "#{c.name}: #{c.symbol}"
+      flogger.info "#{c.name}: #{c.symbol}"
     end
   end
 end

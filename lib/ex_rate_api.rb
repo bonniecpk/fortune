@@ -21,8 +21,8 @@ module Fortune
     private
     def _api(api, params={})
       url  = "#{BASE_URL}#{api}.json?app_id=#{API_ID}"
-      
-      puts "## Calling #{url}"
+
+      flogger.info "## Calling #{url}"
       
       resp = RestClient.get("#{url}")
       JSON.parse(resp.body)

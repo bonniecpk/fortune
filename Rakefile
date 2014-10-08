@@ -1,6 +1,8 @@
 require_relative "config/init"
 
-@@api = Fortune::ExRateApi.new
+def api
+  Fortune::ExRateApi.new
+end
 
 Dir["lib/tasks/**/*.rake"].each do |file|
   load file

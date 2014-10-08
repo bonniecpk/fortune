@@ -5,17 +5,36 @@ namespace :analysis do
     Fortune::PlainLogger.new("#{ENV["ANALYSIS_DIR"]}/analysis.txt")
   end
 
-  task :top_5 do
+  task :top_10 do
     start = ask("Start Date (YYYY-MM-DD)? ")
     query = Fortune::DailyRate.where(:date.gte => Date.parse(start)).group_by(&:currency)
 
     result = []
-    query.each do |currency, rates|
+    query.each do |symbol, rates|
+      currency   = Fortune::Currency.where(symbol: symbol).first
+      today_rate = Fortune::DailyRate.where(:date => Date.today,
+                                            :currency => symbol).first
+
+      flogger.debug "Running #{symbol}...."
+
+      if currency.nil?
+        flogger.debug "Skipping #{symbol} (not exist in currency table)..."
+        next
+      # skipping disabled currencies
+      elsif currency.has_attribute?(:enabled) && !currency.enabled
+        flogger.debug "Skipping #{symbol} (Disabled)..."
+        next
+      # Currency may exist in the past, but not today
+      elsif today_rate.nil?
+        flogger.debug "Skipping #{symbol} (Not exist today)..."
+        next
+      end
+
       analysis = {
-        currency: Fortune::Currency.where(symbol: currency).first,
+        currency: currency,
         max:      rates.max_by(&:price),
         min:      rates.min_by(&:price),
-        today:    Fortune::DailyRate.where(:date => Date.today, :currency => currency).first
+        today:    today_rate
       }
 
       analysis[:profit] = (analysis[:max].price - analysis[:today].price) / 
@@ -26,14 +45,13 @@ namespace :analysis do
       result << analysis
     end
 
-    top_5 = result.sort_by { |a| a[:profit] }.reverse[0..5]
+    top_10 = result.sort_by { |a| a[:profit] }.reverse[0..10]
 
-    reporter.info("################# TOP 5 (Start Date: #{start}) #####################")
-    print_result(top_5)
+    reporter.info("################# TOP 10 (Start Date: #{start}) #####################")
+    print_result(top_10)
   end
 
   def print_result(result)
-
     result.each do |values|
       output = """
         #{values[:currency].symbol} - #{values[:currency].name}

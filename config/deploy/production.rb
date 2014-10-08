@@ -17,7 +17,7 @@ set   :deploy_via,        :remote_cache
 # server list. The second argument is a, or duck-types, Hash and is
 # used to set extended properties on the server.
 
-server_domains("fortune").each do |server|
+server_domains("exchange").each do |server|
   server server, user: "fortune", roles: %w{web app}
 end
 

@@ -13,9 +13,9 @@ module Fortune
     def self.load(name, symbol)
       currency = self.new(symbol: symbol, name: name)
       if currency.save
-        puts "## Currency saved with ID #{currency.id}, symbol: #{symbol}, name: #{name}"
+        flogger.info "## Currency saved with ID #{currency.id}, symbol: #{symbol}, name: #{name}"
       else
-        puts "## Skipping #{name} (#{symbol})..."
+        flogger.info "## Skipping #{name} (#{symbol})..."
       end
     end
   end

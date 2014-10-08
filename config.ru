@@ -1,3 +1,5 @@
+ENV["ENVIRONMENT"] = "web"
+
 require './config/init'
 
 map('/assets') do

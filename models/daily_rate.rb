@@ -23,9 +23,9 @@ module Fortune
                               price:     price,
                               date:      date)
         if daily_rate.save
-          puts "## Daily Rate saved with ID #{daily_rate.id}, date: #{date}, currency: #{currency}, price: #{price}"
+          flogger.info "## Daily Rate saved with ID #{daily_rate.id}, date: #{date}, currency: #{currency}, price: #{price}"
         else
-          puts "## Skipping #{currency} #{date}..."
+          flogger.info "## Skipping #{currency} #{date}..."
         end
       end
     end

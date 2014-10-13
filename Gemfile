@@ -10,6 +10,7 @@ gem 'highline'
 gem 'awesome_print'
 gem 'sprockets'
 gem 'unicorn'
+gem 'pony'
 
 # Javascript Related Gems
 gem 'sinatra-backbone'

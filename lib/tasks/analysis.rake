@@ -1,8 +1,58 @@
 namespace :analysis do
+  task :profit_notification do
+    purchases = Fortune::Purchase.where(sold: false)
 
-  def reporter
-    FileUtils.mkdir_p(ENV["ANALYSIS_DIR"]) unless File.directory?(ENV["ANALYSIS_DIR"])
-    Fortune::PlainLogger.new("#{ENV["ANALYSIS_DIR"]}/analysis.txt")
+    purchases.each do |purchase|
+      buy_bank_rate  = Fortune::BankRate.where(base_currency: purchase.base_currency,
+                                               to_currency:   purchase.buy_currency).first
+      sell_bank_rate = Fortune::BankRate.where(base_currency: purchase.buy_currency,
+                                               to_currency:   purchase.base_currency).first
+      bank_interest  = Fortune::BankInterest.where(currency:  purchase.buy_currency).first
+
+      unless buy_bank_rate
+        flogger.error "Missing Buy BankRate for #{purchase.attributes.to_s}"
+        next
+      end
+
+      unless sell_bank_rate
+        flogger.error "Missing Sell BankRate for #{purchase.attributes.to_s}"
+        next
+      end
+
+      target_return     = purchase.capital * (1 + purchase.target_rate / 100)
+      actual_buy_price  = purchase.buy_price * (1 - buy_bank_rate.fee / 100)
+      converted_capital = purchase.capital * actual_buy_price
+      yearly_maturity   = 12 / bank_interest.maturity
+      interest          = bank_interest ? converted_capital * (bank_interest.rate / 100 / yearly_maturity) : 0
+      converted_total_return = converted_capital + interest
+      target_sell_price = target_return / (converted_total_return * (1 - sell_bank_rate.fee / 100))
+
+      calculations = {
+        target_return:          target_return,
+        actual_buy_price:       actual_buy_price,
+        converted_capital:      converted_capital,
+        yearly_maturity:        yearly_maturity,
+        interest:               interest,
+        converted_total_return: converted_total_return,
+        target_sell_price:      target_sell_price,
+        inverted_sell_price:    1 / target_sell_price
+      }
+
+      ap calculations
+
+      today_rate = Fortune::DailyRate.where(currency: purchase.buy_currency, date: Date.today).first
+      if today_rate.price <= calculations[:inverted_sell_price]
+        Pony.mail({
+          from:      'exchange@pchui.me',
+          to:        'poki.developer@gmail.com',
+          subject:   "Time to sell #{purchase.buy_currency}!",
+          html_body: "#{calculations} and today's rate = #{today_rate.price}",
+          via_options: {
+            enable_starttls_auto: true
+          }
+        })
+      end
+    end
   end
 
   task :top_10 do
@@ -12,8 +62,8 @@ namespace :analysis do
     result = []
     query.each do |symbol, rates|
       currency   = Fortune::Currency.where(symbol: symbol).first
-      today_rate = Fortune::DailyRate.where(:date => Date.today,
-                                            :currency => symbol).first
+      today_rate = Fortune::DailyRate.where(date:     Date.today,
+                                            currency: symbol).first
 
       flogger.debug "Running #{symbol}...."
 
@@ -49,6 +99,11 @@ namespace :analysis do
 
     reporter.info("################# TOP 10 (Start Date: #{start}) #####################")
     print_result(top_10)
+  end
+
+  def reporter
+    FileUtils.mkdir_p(ENV["ANALYSIS_DIR"]) unless File.directory?(ENV["ANALYSIS_DIR"])
+    Fortune::PlainLogger.new("#{ENV["ANALYSIS_DIR"]}/analysis.txt")
   end
 
   def print_result(result)

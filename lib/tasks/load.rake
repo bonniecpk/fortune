@@ -19,4 +19,28 @@ namespace :load do
       rates.each { |currency, price| Fortune::DailyRate.load(currency, price, date) }
     end
   end
+
+  task :purchase do
+    capital  = ask("Capital (3000 for $3000)? ")
+    currency = ask("Currency (EUR)? ")
+    price    = ask("Buy in price? (0.8 for $0.8)? ")
+
+    Fortune::Purchase.load_today(capital, currency, price)
+  end
+
+  task :bank_rate  do
+    base = ask("Base Currency (USD)? ")
+    to   = ask("To Currency (BRL)? ")
+    fee    = ask("Conversion fee (8 for 8%)? ")
+
+    Fortune::BankRate.load(base, to, fee)
+  end
+
+  task :bank_interest  do
+    base     = ask("Currency (USD)? ")
+    rate     = ask("Interest (8 for 8%)? ")
+    maturity = ask("Maturity Period (12 for 12 months)? ")
+
+    Fortune::BankInterest.load(base, rate, maturity)
+  end
 end

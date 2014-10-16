@@ -10,6 +10,7 @@ module Fortune
     field :capital,       type: Float   # money invested
     field :base_currency, type: String,  default: "USD"
     field :buy_currency,  type: String
+    # the actual converted buy price from the bank (not market value)
     field :buy_price,     type: Float
     field :buy_date,      type: Date
     field :target_rate,   type: Float,   default: "3" # default is 3%

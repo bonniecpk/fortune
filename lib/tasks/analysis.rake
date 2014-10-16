@@ -48,7 +48,7 @@ namespace :analysis do
           from:      'exchange@pchui.me',
           to:        'poki.developer@gmail.com',
           subject:   "Time to sell #{purchase.buy_currency}!",
-          html_body: "#{calculations.collect { |k,v| "#{k} = #{v}" }}\nToday's rate = $#{today_rate.price}",
+          html_body: "#{calculations.collect { |k,v| "#{k} = #{v}" }.join("<br/>")}<br/>Today's rate = $#{today_rate.price}",
           via_options: {
             enable_starttls_auto: true
           }

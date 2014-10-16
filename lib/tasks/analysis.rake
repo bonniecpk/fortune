@@ -20,8 +20,8 @@ namespace :analysis do
       end
 
       target_return     = purchase.capital * (1 + purchase.target_rate / 100)
-      actual_buy_price  = purchase.buy_price * (1 - buy_bank_rate.fee / 100)
-      converted_capital = purchase.capital * actual_buy_price
+      market_buy_price  = purchase.buy_price / (1 - buy_bank_rate.fee / 100)
+      converted_capital = purchase.capital * purchase.buy_price
       yearly_maturity   = 12 / bank_interest.maturity
       interest          = bank_interest ? converted_capital * (bank_interest.rate / 100 / yearly_maturity) : 0
       converted_total_return = converted_capital + interest
@@ -29,7 +29,7 @@ namespace :analysis do
 
       calculations = {
         target_return:          target_return,
-        actual_buy_price:       actual_buy_price,
+        market_buy_price:       market_buy_price,
         converted_capital:      converted_capital,
         yearly_maturity:        yearly_maturity,
         interest:               interest,

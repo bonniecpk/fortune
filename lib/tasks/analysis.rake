@@ -41,12 +41,14 @@ namespace :analysis do
       ap calculations
 
       today_rate = Fortune::DailyRate.where(currency: purchase.buy_currency, date: Date.today).first
+      ap "Today's rate = #{today_rate.price}"
+
       if today_rate.price <= calculations[:inverted_sell_price]
         Pony.mail({
           from:      'exchange@pchui.me',
           to:        'poki.developer@gmail.com',
           subject:   "Time to sell #{purchase.buy_currency}!",
-          html_body: "#{calculations} and today's rate = #{today_rate.price}",
+          html_body: "#{calculations.collect { |k,v| "#{k} = #{v}" }}\nToday's rate = $#{today_rate.price}",
           via_options: {
             enable_starttls_auto: true
           }

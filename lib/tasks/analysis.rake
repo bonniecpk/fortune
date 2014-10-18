@@ -1,31 +1,38 @@
 namespace :analysis do
-  task :profit_notification do
-    purchases = Fortune::Purchase.where(sold: false)
+  task :notify do
+    investments = Fortune::Investment.where(sold: false)
 
-    purchases.each do |purchase|
-      buy_bank_rate  = Fortune::BankRate.where(base_currency: purchase.base_currency,
-                                               to_currency:   purchase.buy_currency).first
-      sell_bank_rate = Fortune::BankRate.where(base_currency: purchase.buy_currency,
-                                               to_currency:   purchase.base_currency).first
-      bank_interest  = Fortune::BankInterest.where(currency:  purchase.buy_currency).first
+    investments.each do |investment|
+      buy_bank_rate  = Fortune::BankRate.where(base_currency: investment.base_currency,
+                                               to_currency:   investment.buy_currency).first
+      sell_bank_rate = Fortune::BankRate.where(base_currency: investment.buy_currency,
+                                               to_currency:   investment.base_currency).first
+      bank_interest  = Fortune::BankInterest.where(currency:  investment.buy_currency).first
 
       unless buy_bank_rate
-        flogger.error "Missing Buy BankRate for #{purchase.attributes.to_s}"
+        flogger.error "Missing Buy BankRate for #{investment.attributes.to_s}"
         next
       end
 
       unless sell_bank_rate
-        flogger.error "Missing Sell BankRate for #{purchase.attributes.to_s}"
+        flogger.error "Missing Sell BankRate for #{investment.attributes.to_s}"
         next
       end
 
-      target_return     = purchase.capital * (1 + purchase.target_rate / 100)
-      market_buy_price  = purchase.buy_price / (1 - buy_bank_rate.fee / 100)
-      converted_capital = purchase.capital * purchase.buy_price
+      target_return     = investment.capital * (1 + investment.target_rate)
+      market_buy_price  = investment.buy_price / (1 - buy_bank_rate.fee)
+      converted_capital = investment.capital * investment.buy_price
       yearly_maturity   = 12 / bank_interest.maturity
-      interest          = bank_interest ? converted_capital * (bank_interest.rate / 100 / yearly_maturity) : 0
+      interest          = bank_interest ? converted_capital * (bank_interest.rate / yearly_maturity) : 0
       converted_total_return = converted_capital + interest
-      target_sell_price = target_return / (converted_total_return * (1 - sell_bank_rate.fee / 100))
+      target_sell_price = target_return / (converted_total_return * (1 - sell_bank_rate.fee))
+      hourly_rate       = Fortune::HourlyRate.where(currency: investment.buy_currency, 
+                                                    datetime: {"$lt" => DateTime.now}).first
+      actual_sell_price = hourly_rate.price * (1 + sell_bank_rate.fee)
+      current_capital   = converted_capital / actual_sell_price
+      loss_threshold    = converted_capital * (1 - investment.loss_rate)
+      i_current_capital = (converted_capital + interest) / actual_sell_price
+      i_loss_threshold  = investment.capital * (1 - investment.loss_rate)
 
       calculations = {
         target_return:          target_return,
@@ -35,20 +42,28 @@ namespace :analysis do
         interest:               interest,
         converted_total_return: converted_total_return,
         target_sell_price:      target_sell_price,
-        inverted_sell_price:    1 / target_sell_price
+        inverted_sell_price:    1 / target_sell_price,
+        current_capital:        current_capital,
+        loss_threshold:         loss_threshold,
+        i_current_capital:      i_current_capital,
+        i_loss_threshold:       i_loss_threshold
       }
 
       ap calculations
+      ap "Current rate (as of #{hourly_rate.datetime}) = $#{hourly_rate.price}"
 
-      today_rate = Fortune::DailyRate.where(currency: purchase.buy_currency, date: Date.today).first
-      ap "Today's rate = #{today_rate.price}"
+      if hourly_rate.price <= calculations[:inverted_sell_price]
+        subject = "Time to sell #{investment.buy_currency}!"
+      elsif current_capital < loss_threshold
+        subject   = "WARNING: Investment dropped #{investment.loss_rate}"
+      end
 
-      if today_rate.price <= calculations[:inverted_sell_price]
+      if subject
         Pony.mail({
           from:      'exchange@pchui.me',
           to:        'poki.developer@gmail.com',
-          subject:   "Time to sell #{purchase.buy_currency}!",
-          html_body: "#{calculations.collect { |k,v| "#{k} = #{v}" }.join("<br/>")}<br/>Today's rate = $#{today_rate.price}",
+          subject:   subject,
+          html_body: html_body(calculations, hourly_rate),
           via_options: {
             enable_starttls_auto: true
           }
@@ -120,5 +135,11 @@ namespace :analysis do
 
       reporter.info(output)
     end
+  end
+
+  def html_body(calculations, hourly_rate)
+    "#{calculations.collect { |k,v| "#{k} = #{v}" }.join("<br/>")}
+    <br/>
+    Current rate (as of #{hourly_rate.datetime} = $#{hourly_rate.price}"
   end
 end

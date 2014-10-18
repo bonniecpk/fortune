@@ -1,11 +1,11 @@
 module Fortune
-  class Purchase
+  class Investment
     include Mongoid::Document
     include Mongoid::Timestamps
     include ActiveModel::Validations
     extend  Fortune::Util
 
-    store_in collection: "purchases"
+    store_in collection: "investments"
 
     field :capital,       type: Float   # money invested
     field :base_currency, type: String,  default: "USD"
@@ -13,7 +13,9 @@ module Fortune
     # the actual converted buy price from the bank (not market value)
     field :buy_price,     type: Float
     field :buy_date,      type: Date
-    field :target_rate,   type: Float,   default: "3" # default is 3%
+    field :target_rate,   type: Float,   default: 0.03 # default is 3%
+    # loss rate is intended for email notification when loss is more than 5%
+    field :loss_rate,     type: Float,   default: 0.03 # default is -3%
     field :sold,          type: Boolean, default: false
 
     class << self
@@ -22,14 +24,14 @@ module Fortune
       end
 
       def load(cap, currency, price, date)
-        purchase = self.new(capital:       cap,
+        investment = self.new(capital:       cap,
                             buy_currency:  currency,
                             buy_price:     price,
                             buy_date:      date)
-        if purchase.save
-          flogger.info "## Purchase saved with #{purchase.attributes.to_s}"
+        if investment.save
+          flogger.info "## Investment saved with #{investment.attributes.to_s}"
         else
-          flogger.info "## Skipping #{purchase.attributes.to_s}"
+          flogger.info "## Skipping #{investment.attributes.to_s}"
         end
       end
     end

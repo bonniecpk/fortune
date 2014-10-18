@@ -21,13 +21,13 @@ namespace :load do
     end
   end
 
-  task :purchase do
+  task :investment do
     capital  = ask("Capital (3000 for $3000)? ")
     currency = ask("Currency (EUR)? ")
     price    = ask("Buy in price? The actual converted price from the bank. (0.8 for $0.8)? ")
     date     = ask("Buy in date? (2014-10-14) ")
 
-    Fortune::Purchase.load(capital, currency, price, Date.parse(date))
+    Fortune::Investment.load(capital, currency, price, Date.parse(date))
   end
 
   task :bank_rate  do

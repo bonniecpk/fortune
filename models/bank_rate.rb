@@ -7,7 +7,7 @@ module Fortune
 
     field :base_currency, type: String, default: "USD"
     field :to_currency,   type: String
-    field :fee,           type: Float
+    field :fee,           type: Float,  default: 0.075
 
     class << self
       def load(base, to, fee)

@@ -2,6 +2,7 @@ namespace :load do
   task :latest do
     rates = api.latest["rates"]
     rates.each { |currency, price| Fortune::DailyRate.load_today(currency, price) }
+    rates.each { |currency, price| Fortune::HourlyRate.load(currency, price) }
   end
 
   task :currencies do

@@ -40,6 +40,7 @@ lib.each do |file|
   require_relative "../#{file}"
 end
 
+############### Initializing the app ###################
 def flogger
   Fortune::Logger.get
 end

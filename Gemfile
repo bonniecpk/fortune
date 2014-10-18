@@ -23,6 +23,7 @@ group :development do
   gem 'pry'
   gem 'pry-nav'
   gem 'shotgun'
+  gem 'mailcatcher'
   gem 'capistrano', '~> 3.0'
   gem 'capistrano-bundler'
   gem 'capistrano-rvm'

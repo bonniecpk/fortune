@@ -23,14 +23,15 @@ namespace :analysis do
       market_buy_price  = investment.buy_price / (1 - buy_bank_rate.fee)
       converted_capital = investment.capital * investment.buy_price
       yearly_maturity   = 12 / bank_interest.maturity
-      interest          = bank_interest ? converted_capital * (bank_interest.rate / yearly_maturity) : 0
-      converted_total_return = converted_capital + interest
+      converted_interest = bank_interest ? converted_capital * (bank_interest.rate / yearly_maturity) : 0
+      converted_total_return = converted_capital + converted_interest
       target_sell_price = target_return / (converted_total_return * (1 - sell_bank_rate.fee))
       hourly_rate       = Fortune::HourlyRate.where(currency: investment.buy_currency, 
                                                     datetime: {"$lt" => DateTime.now}).first
       actual_sell_price = hourly_rate.price * (1 + sell_bank_rate.fee)
+      interest          = converted_interest / actual_sell_price
       current_capital   = converted_capital / actual_sell_price
-      loss_threshold    = converted_capital * (1 - investment.loss_rate)
+      loss_threshold    = investment.capital * (1 - investment.loss_rate)
       i_current_capital = (converted_capital + interest) / actual_sell_price
       i_loss_threshold  = investment.capital * (1 - investment.loss_rate)
 
@@ -40,6 +41,7 @@ namespace :analysis do
         converted_capital:      converted_capital,
         yearly_maturity:        yearly_maturity,
         interest:               interest,
+        converted_interest:     converted_interest,
         converted_total_return: converted_total_return,
         target_sell_price:      target_sell_price,
         inverted_sell_price:    1 / target_sell_price,
@@ -50,7 +52,8 @@ namespace :analysis do
       }
 
       ap calculations
-      ap "Current rate (as of #{hourly_rate.datetime}) = $#{hourly_rate.price}"
+      flogger.info calculations
+      flogger.info "Current rate (as of #{hourly_rate.datetime}) = $#{hourly_rate.price}"
 
       if hourly_rate.price <= calculations[:inverted_sell_price]
         subject = "Time to sell #{investment.buy_currency}!"
@@ -59,12 +62,16 @@ namespace :analysis do
       end
 
       if subject
+        flogger.info "Email sent"
+
         Pony.mail({
           from:      'exchange@pchui.me',
           to:        'poki.developer@gmail.com',
           subject:   subject,
           html_body: html_body(calculations, hourly_rate),
+          via:       :smtp,
           via_options: {
+            port:    ENV["SMTP_PORT"] ? ENV["SMTP_PORT"] : 25,
             enable_starttls_auto: true
           }
         })

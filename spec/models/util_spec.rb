@@ -16,6 +16,28 @@ describe Fortune::Util do
     end
   end
 
+  describe "#round_time" do
+    let(:exact_hour) { DateTime.parse("2014-10-14T13:00:00") }
+
+    it "param is nil" do
+      expect { Dummy.round_time(nil) }.to raise_error(Fortune::Util::ParseError)
+    end
+
+    it "exact hour" do
+      expect(Dummy.round_time(exact_hour)).to eq(exact_hour)
+    end
+
+    it "round down" do
+      time = DateTime.parse("2014-10-14T13:29:00")
+      expect(Dummy.round_time(time)).to eq(exact_hour)
+    end
+
+    it "round up" do
+      time = DateTime.parse("2014-10-14T12:30:00")
+      expect(Dummy.round_time(time)).to eq(exact_hour)
+    end
+  end
+
   describe "#max_obj" do
     it "empty collection" do
       expect(Dummy.max_obj(:price)).to be_nil

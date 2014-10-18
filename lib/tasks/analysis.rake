@@ -32,8 +32,7 @@ namespace :analysis do
       interest          = converted_interest / actual_sell_price
       current_capital   = converted_capital / actual_sell_price
       loss_threshold    = investment.capital * (1 - investment.loss_rate)
-      i_current_capital = (converted_capital + interest) / actual_sell_price
-      i_loss_threshold  = investment.capital * (1 - investment.loss_rate)
+      i_current_capital = (converted_capital + converted_interest) / actual_sell_price
 
       calculations = {
         target_return:          target_return,
@@ -46,9 +45,8 @@ namespace :analysis do
         target_sell_price:      target_sell_price,
         inverted_sell_price:    1 / target_sell_price,
         current_capital:        current_capital,
-        loss_threshold:         loss_threshold,
         i_current_capital:      i_current_capital,
-        i_loss_threshold:       i_loss_threshold
+        loss_threshold:         loss_threshold
       }
 
       ap calculations

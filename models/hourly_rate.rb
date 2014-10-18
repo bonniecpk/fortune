@@ -20,9 +20,9 @@ module Fortune
         hourly_rate.datetime = round_time(datetime) if datetime
 
         if hourly_rate.save
-          flogger.info "## Hourly Rate saved with ID #{hourly_rate.id}, datetime: #{datetime}, currency: #{currency}, price: #{price}"
+          flogger.info "## Hourly Rate saved: #{hourly_rate.attributes}"
         else
-          flogger.info "## Skipping #{currency} #{datetime}..."
+          flogger.info "## Skipping #{hourly_rate.attributes}..."
         end
       end
     end

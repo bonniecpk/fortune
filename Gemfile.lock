@@ -28,11 +28,13 @@ GEM
     coderay (1.1.0)
     colorize (0.7.3)
     connection_pool (2.0.0)
+    daemons (1.1.9)
     database_cleaner (1.3.0)
     diff-lcs (1.2.5)
     dotenv (0.11.1)
       dotenv-deployment (~> 0.0.2)
     dotenv-deployment (0.0.2)
+    eventmachine (1.0.3)
     factory_girl (4.4.0)
       activesupport (>= 3.0.0)
     haml (4.0.5)
@@ -44,6 +46,16 @@ GEM
     kgio (2.9.2)
     mail (2.6.1)
       mime-types (>= 1.16, < 3)
+    mailcatcher (0.2.4)
+      eventmachine
+      haml
+      i18n
+      json
+      mail
+      sinatra
+      skinny (>= 0.1.2)
+      sqlite3-ruby
+      thin
     method_source (0.8.2)
     mime-types (2.3)
     minitest (5.4.1)
@@ -104,16 +116,26 @@ GEM
       tilt (~> 1.3, >= 1.3.4)
     sinatra-backbone (0.1.1)
       sinatra
+    skinny (0.2.3)
+      eventmachine (~> 1.0.0)
+      thin (~> 1.5.0)
     slop (3.6.0)
     sprockets (2.12.2)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
+    sqlite3 (1.3.9)
+    sqlite3-ruby (1.3.3)
+      sqlite3 (>= 1.3.3)
     sshkit (1.5.1)
       colorize
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
+    thin (1.5.1)
+      daemons (>= 1.0.9)
+      eventmachine (>= 0.12.6)
+      rack (>= 1.0.0)
     thread_safe (0.3.4)
     tilt (1.4.1)
     tzinfo (1.2.2)
@@ -137,6 +159,7 @@ DEPENDENCIES
   factory_girl
   haml
   highline
+  mailcatcher
   mongoid
   pony
   pry

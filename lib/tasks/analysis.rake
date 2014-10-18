@@ -24,8 +24,8 @@ namespace :analysis do
       converted_capital = investment.capital * investment.buy_price
       yearly_maturity   = 12 / bank_interest.maturity
       converted_interest = bank_interest ? converted_capital * (bank_interest.rate / yearly_maturity) : 0
-      converted_total_return = converted_capital + converted_interest
-      target_sell_price = target_return / (converted_total_return * (1 - sell_bank_rate.fee))
+      i_converted_return = converted_capital + converted_interest
+      target_sell_price = target_return / (i_converted_return * (1 - sell_bank_rate.fee))
       hourly_rate       = Fortune::HourlyRate.where(currency: investment.buy_currency, 
                                                     datetime: {"$lt" => DateTime.now}).first
       actual_sell_price = hourly_rate.price * (1 + sell_bank_rate.fee)
@@ -35,16 +35,18 @@ namespace :analysis do
       i_current_capital = (converted_capital + converted_interest) / actual_sell_price
 
       calculations = {
-        target_return:          target_return,
-        market_buy_price:       market_buy_price,
+        capital:                investment.capital,
         converted_capital:      converted_capital,
+        target_return:          target_return,
+        target_sell_price:      target_sell_price,
+        target_inverted_sell_price:    1 / target_sell_price,
+        actual_buy_price:       investment.buy_price,
+        market_buy_price:       market_buy_price,
         yearly_maturity:        yearly_maturity,
         interest:               interest,
         converted_interest:     converted_interest,
-        converted_total_return: converted_total_return,
-        target_sell_price:      target_sell_price,
-        inverted_sell_price:    1 / target_sell_price,
         current_capital:        current_capital,
+        i_converted_return:     i_converted_return,
         i_current_capital:      i_current_capital,
         loss_threshold:         loss_threshold
       }
@@ -53,7 +55,7 @@ namespace :analysis do
       flogger.info calculations
       flogger.info "Current rate (as of #{hourly_rate.datetime}) = $#{hourly_rate.price}"
 
-      if hourly_rate.price <= calculations[:inverted_sell_price]
+      if hourly_rate.price <= calculations[:target_inverted_sell_price]
         subject = "Time to sell #{investment.buy_currency}!"
       elsif current_capital < loss_threshold
         subject   = "WARNING: Investment dropped #{investment.loss_rate}"

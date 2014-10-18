@@ -96,6 +96,8 @@ GEM
     sass (3.4.5)
     shotgun (0.9)
       rack (>= 1.0)
+    shoulda-matchers (2.7.0)
+      activesupport (>= 3.0.0)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -145,6 +147,7 @@ DEPENDENCIES
   rspec
   sass
   shotgun
+  shoulda-matchers
   sinatra
   sinatra-backbone
   sprockets

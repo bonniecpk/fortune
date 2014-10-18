@@ -22,14 +22,14 @@ namespace :analysis do
       target_return       = investment.capital * (1 + investment.target_rate)
       market_buy_price    = investment.buy_price / (1 - buy_bank_rate.fee)
       converted_capital   = investment.capital * investment.buy_price
-      i_converted_capital = converted_capital + converted_interest
       yearly_maturity     = 12 / bank_interest.maturity
       converted_interest  = bank_interest ? converted_capital * (bank_interest.rate / yearly_maturity) : 0
-      interest            = converted_interest / actual_sell_price
+      i_converted_capital = converted_capital + converted_interest
       target_sell_price   = target_return / (i_converted_capital * (1 - sell_bank_rate.fee))
       hourly_rate         = Fortune::HourlyRate.where(currency: investment.buy_currency,
                                                       datetime: {"$lt" => DateTime.now}).first
       actual_sell_price   = hourly_rate.price * (1 + sell_bank_rate.fee)
+      interest            = converted_interest / actual_sell_price
       current_capital     = converted_capital / actual_sell_price
       loss_threshold      = investment.capital * (1 - investment.loss_rate)
       i_current_capital   = (converted_capital + converted_interest) / actual_sell_price

@@ -9,7 +9,7 @@ module Fortune
 
     field :currency,    type: String
     field :price,       type: Float
-    field :date,        type: Date
+    field :date,        type: Date, default: Date.today
 
     validates_uniqueness_of :currency, scope: :date
 

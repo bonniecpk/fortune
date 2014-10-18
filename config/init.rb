@@ -15,7 +15,11 @@ require "awesome_print"
 require "dotenv"
 require 'fileutils'
 require 'pony'
-require "pry" if ENV["RACK_ENV"] == 'development' || ENV['RACK_ENV'] == 'test'
+
+if ENV["RACK_ENV"] == 'development' || ENV['RACK_ENV'] == 'test'
+  require "pry"
+  require "shoulda/matchers"
+end
 
 Dotenv.load
 

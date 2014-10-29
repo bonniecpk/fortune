@@ -50,7 +50,7 @@ $(function() {
           }
         });
 
-        line_graph(data);
+        new Fortune.LineChart(data).draw();
       }});
     }
   });

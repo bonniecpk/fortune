@@ -27,7 +27,8 @@ namespace :analysis do
       i_converted_capital = converted_capital + converted_interest
       target_sell_price   = target_return / (i_converted_capital * (1 - sell_bank_rate.fee))
       hourly_rate         = Fortune::HourlyRate.where(currency: investment.buy_currency,
-                                                      datetime: {"$lt" => DateTime.now}).first
+                                                      datetime: {"$lt" => DateTime.now}).
+                                                desc(:datetime).first
       actual_sell_price   = hourly_rate.price * (1 + sell_bank_rate.fee)
       interest            = converted_interest / actual_sell_price
       current_capital     = converted_capital / actual_sell_price
@@ -45,6 +46,8 @@ namespace :analysis do
         yearly_maturity:        yearly_maturity,
         interest:               interest,
         converted_interest:     converted_interest,
+        current_sell_price:     hourly_rate.price,
+        actual_sell_price:      actual_sell_price,
         current_capital:        current_capital,
         i_current_capital:      i_current_capital,
         loss_threshold:         loss_threshold

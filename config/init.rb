@@ -5,6 +5,7 @@ require "sinatra/base"
 require "sinatra/jstpages"
 require "haml"
 require "sass"
+require "coffee-script"
 require "sprockets"
 require "rest-client"
 require "bson"
@@ -13,8 +14,8 @@ require "mongoid"
 require "highline/import"
 require "awesome_print"
 require "dotenv"
-require 'fileutils'
-require 'pony'
+require "fileutils"
+require "pony"
 
 if ENV["RACK_ENV"] == 'development' || ENV['RACK_ENV'] == 'test'
   require "pry"

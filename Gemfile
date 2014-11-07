@@ -11,6 +11,7 @@ gem 'awesome_print'
 gem 'sprockets'
 gem 'unicorn'
 gem 'pony'
+gem 'coffee-script'
 
 # Javascript Related Gems
 gem 'sinatra-backbone'

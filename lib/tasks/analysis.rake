@@ -64,8 +64,6 @@ namespace :analysis do
       end
 
       if subject
-        flogger.info "Email sent"
-
         Pony.mail({
           from:      'exchange@pchui.me',
           to:        'poki.developer@gmail.com',
@@ -74,9 +72,11 @@ namespace :analysis do
           via:       :smtp,
           via_options: {
             port:    ENV["SMTP_PORT"] ? ENV["SMTP_PORT"] : 25,
-            enable_starttls_auto: true
+            enable_starttls_auto: false
           }
         })
+
+        flogger.info "Email sent"
       end
     end
   end

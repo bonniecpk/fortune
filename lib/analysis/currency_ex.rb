@@ -13,8 +13,8 @@ module Fortune::Analysis
                                                   datetime: {"$lt" => DateTime.now}).
                                             desc(:datetime).first
 
-      raise "Missing Buy BankRate for #{@investment.attributes.to_s}"  unless @buy_bank_rate
-      raise "Missing Sell BankRate for #{@investment.attributes.to_s}" unless @sell_bank_rate
+      raise MissingDataError.new("Missing Buy BankRate for #{@investment.attributes.to_s}")  unless @buy_bank_rate
+      raise MissingDataError.new("Missing Sell BankRate for #{@investment.attributes.to_s}") unless @sell_bank_rate
     end
 
     ###
@@ -52,7 +52,7 @@ module Fortune::Analysis
     end
 
     def loss_threshold
-      @investment.capital * (1 - @investment.loss_rate)
+      @investment.loss_threshold
     end
 
     ###
@@ -64,7 +64,7 @@ module Fortune::Analysis
     end
 
     def target_return
-      @investment.capital * (1 + @investment.target_rate)
+      @investment.target_return
     end
 
     def current_capital
@@ -112,7 +112,7 @@ module Fortune::Analysis
     end
 
     def yearly_maturity
-      12 / @bank_interest.maturity
+      @bank_interest.yearly_maturity
     end
 
     ###
@@ -120,7 +120,7 @@ module Fortune::Analysis
     ###
     
     def converted_capital
-      @investment.capital * @investment.buy_price
+      @investment.converted_capital
     end
 
     def converted_interest

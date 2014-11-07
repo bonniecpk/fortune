@@ -13,6 +13,10 @@ gem 'unicorn'
 gem 'pony'
 gem 'coffee-script'
 
+# A bundle bug: Need execjs and therubyracer for the deployed server to work
+gem 'execjs'
+gem 'therubyracer'
+
 # Javascript Related Gems
 gem 'sinatra-backbone'
 

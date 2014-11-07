@@ -3,80 +3,28 @@ namespace :analysis do
     investments = Fortune::Investment.where(sold: false)
 
     investments.each do |investment|
-      buy_bank_rate  = Fortune::BankRate.where(base_currency: investment.base_currency,
-                                               to_currency:   investment.buy_currency).first
-      sell_bank_rate = Fortune::BankRate.where(base_currency: investment.buy_currency,
-                                               to_currency:   investment.base_currency).first
-      bank_interest  = Fortune::BankInterest.where(currency:  investment.buy_currency).first
+      begin
+        engine       = Fortune::Analysis::CurrencyEx.new(investment)
+        hourly_rate  = engine.hourly_rate
+        calculations = engine.data
 
-      unless buy_bank_rate
-        flogger.error "Missing Buy BankRate for #{investment.attributes.to_s}"
-        next
-      end
+        ap calculations
+        flogger.info calculations
+        flogger.info "Current rate (as of #{hourly_rate.datetime}) = $#{hourly_rate.price}"
 
-      unless sell_bank_rate
-        flogger.error "Missing Sell BankRate for #{investment.attributes.to_s}"
-        next
-      end
+        if engine.sell?
+          subject = "Time to sell #{investment.buy_currency}!"
+        elsif engine.loss_beyond_threshold?
+          subject = "WARNING: Investment dropped #{investment.loss_rate}"
+        end
 
-      target_return       = investment.capital * (1 + investment.target_rate)
-      market_buy_price    = investment.buy_price / (1 - buy_bank_rate.fee)
-      converted_capital   = investment.capital * investment.buy_price
-      yearly_maturity     = 12 / bank_interest.maturity
-      converted_interest  = bank_interest ? converted_capital * (bank_interest.rate / yearly_maturity) : 0
-      i_converted_capital = converted_capital + converted_interest
-      target_sell_price   = target_return / (i_converted_capital * (1 - sell_bank_rate.fee))
-      hourly_rate         = Fortune::HourlyRate.where(currency: investment.buy_currency,
-                                                      datetime: {"$lt" => DateTime.now}).
-                                                desc(:datetime).first
-      actual_sell_price   = hourly_rate.price * (1 + sell_bank_rate.fee)
-      interest            = converted_interest / actual_sell_price
-      current_capital     = converted_capital / actual_sell_price
-      loss_threshold      = investment.capital * (1 - investment.loss_rate)
-      i_current_capital   = (converted_capital + converted_interest) / actual_sell_price
-
-      calculations = {
-        capital:                investment.capital,
-        converted_capital:      converted_capital,
-        target_return:          target_return,
-        target_sell_price:      target_sell_price,
-        target_inverted_sell_price:    1 / target_sell_price,
-        actual_buy_price:       investment.buy_price,
-        market_buy_price:       market_buy_price,
-        yearly_maturity:        yearly_maturity,
-        interest:               interest,
-        converted_interest:     converted_interest,
-        current_sell_price:     hourly_rate.price,
-        actual_sell_price:      actual_sell_price,
-        current_capital:        current_capital,
-        i_current_capital:      i_current_capital,
-        loss_threshold:         loss_threshold
-      }
-
-      ap calculations
-      flogger.info calculations
-      flogger.info "Current rate (as of #{hourly_rate.datetime}) = $#{hourly_rate.price}"
-
-      if hourly_rate.price <= calculations[:target_inverted_sell_price]
-        subject = "Time to sell #{investment.buy_currency}!"
-      elsif current_capital < loss_threshold
-        subject   = "WARNING: Investment dropped #{investment.loss_rate}"
-      end
-
-      if subject
-        Pony.mail({
-          from:      'exchange@pchui.me',
-          to:        'poki.developer@gmail.com',
-          subject:   subject,
-          html_body: html_body(calculations, hourly_rate),
-          via:       :smtp,
-          via_options: {
-            port:    ENV["SMTP_PORT"] ? ENV["SMTP_PORT"] : 25,
-            enable_starttls_auto: false
-          }
-        })
-
-        flogger.info "Email sent"
+        if subject
+          Fortune::Mailer.send(subject: subject,
+                               content: html_body(calculations, hourly_rate))
+          flogger.info "Email sent"
+        end
+      rescue Fortune::Analysis::MissingDataError => md_error
+        flogger.error md_error.message
       end
     end
   end

@@ -9,10 +9,12 @@ describe Fortune::Util do
     field :price, type: Integer
   end
 
-  FactoryGirl.define do
-    factory :dummy do
-      sequence(:name)  { |n| "Dummy Name #{n}" }
-      sequence(:price) { |n| n + 10 }
+  before(:all) do
+    FactoryGirl.define do
+      factory :dummy do
+        sequence(:name)  { |n| "Dummy Name #{n}" }
+        sequence(:price) { |n| n + 10 }
+      end
     end
   end
 
@@ -44,7 +46,7 @@ describe Fortune::Util do
     end
 
     it "one collection" do
-      dummy  = FactoryGirl.create(:dummy)
+      dummy  = create(:dummy)
       result = Dummy.max_obj(:price)
 
       expect(result.name).to eq(dummy.name)
@@ -53,7 +55,7 @@ describe Fortune::Util do
 
     it "multiple collections" do
       dummies = []
-      5.times { dummies << FactoryGirl.create(:dummy) }
+      5.times { dummies << create(:dummy) }
 
       result = Dummy.max_obj(:price)
 
@@ -68,7 +70,7 @@ describe Fortune::Util do
     end
     
     it "one collection" do
-      dummy  = FactoryGirl.create(:dummy)
+      dummy  = create(:dummy)
       result = Dummy.min_obj(:price)
 
       expect(result.name).to eq(dummy.name)
@@ -77,7 +79,7 @@ describe Fortune::Util do
     
     it "multiple collections" do
       dummies = []
-      5.times { dummies << FactoryGirl.create(:dummy) }
+      5.times { dummies << create(:dummy) }
 
       result = Dummy.min_obj(:price)
 

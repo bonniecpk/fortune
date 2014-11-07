@@ -25,9 +25,9 @@ module Fortune
 
       def load(cap, currency, price, date)
         investment = self.new(capital:       cap,
-                            buy_currency:  currency,
-                            buy_price:     price,
-                            buy_date:      date)
+                              buy_currency:  currency,
+                              buy_price:     price,
+                              buy_date:      date)
         if investment.save
           flogger.info "## Investment saved with #{investment.attributes.to_s}"
         else
@@ -36,5 +36,28 @@ module Fortune
       end
     end
 
+    ###
+    # The investment threshold, i.e.
+    #   Capital   = $20K
+    #   Loss rate = 0.03
+    #   Threshold = $19400
+    ###
+    def loss_threshold
+      capital * (1 - loss_rate)
+    end
+
+    ###
+    # The target return to sell, i.e.
+    #   Capital       = $20K
+    #   Target rate   = 0.03
+    #   Target return = $20600
+    ###
+    def target_return
+      capital * (1 + target_rate)
+    end
+
+    def converted_capital
+      capital * buy_price
+    end
   end
 end

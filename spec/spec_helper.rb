@@ -17,7 +17,10 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order     = "random"
 
+  # Show color for test run status
   config.color     = true
+
+  # Showing each test in each line instead of using dot representation
   config.formatter = :documentation
 
   # FactoryGirl.lint builds each factory and subsequently calls #valid? 
@@ -29,6 +32,12 @@ RSpec.configure do |config|
     FactoryGirl.lint
   end
 
+  # Allow factories to be loaded
+  config.before(:all) do
+    FactoryGirl.reload
+  end
+
+  # Erase all the data after each test run
   config.after(:each) do
     DatabaseCleaner.clean
   end

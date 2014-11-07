@@ -49,6 +49,7 @@ GEM
     i18n (0.6.11)
     json (1.8.1)
     kgio (2.9.2)
+    libv8 (3.16.14.7)
     mail (2.6.1)
       mime-types (>= 1.16, < 3)
     mailcatcher (0.2.4)
@@ -95,6 +96,7 @@ GEM
       rack (>= 1.0)
     raindrops (0.13.0)
     rake (10.3.2)
+    ref (1.0.5)
     rest-client (1.7.2)
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
@@ -137,6 +139,9 @@ GEM
       colorize
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
+    therubyracer (0.12.1)
+      libv8 (~> 3.16.14.0)
+      ref
     thin (1.5.1)
       daemons (>= 1.0.9)
       eventmachine (>= 0.12.6)
@@ -162,6 +167,7 @@ DEPENDENCIES
   coffee-script
   database_cleaner
   dotenv
+  execjs
   factory_girl
   haml
   highline
@@ -180,4 +186,5 @@ DEPENDENCIES
   sinatra
   sinatra-backbone
   sprockets
+  therubyracer
   unicorn

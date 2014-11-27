@@ -55,6 +55,10 @@ module Fortune::Analysis
       @investment.loss_threshold
     end
 
+    def profit_delta
+      (current_capital_with_interest - original_capital / original_capital).round(2)
+    end
+
     ###
     # Investement info methods
     ###
@@ -129,6 +133,37 @@ module Fortune::Analysis
 
     def converted_capital_with_interest
       converted_capital + converted_interest
+    end
+
+    ###
+    # Notifications
+    ###
+    
+    def notify?
+      if sell? || loss_beyond_threshold?
+        notification = @investment.notification
+        return true unless notification
+        return notification.percent != profit_delta
+      end
+
+      return false
+    end
+
+    def notify_buyer
+      subject = "#{@investment.buy_currency}: #{profit_delta}"
+
+      Fortune::Mailer.send(subject: subject, content: html_body)
+      flogger.info "Email sent"
+
+      # This line will replace an existing notification in MongoDB if it ever exists
+      @investment.notification = Notification.new(percent: profit_delta)
+    end
+
+    private
+    def html_body
+      "#{data.collect { |k,v| "#{k} = #{v}" }.join("<br/>")}
+       <br/>
+       Current rate (as of #{@hourly_rate.datetime} = $#{@hourly_rate.price}"
     end
   end
 end

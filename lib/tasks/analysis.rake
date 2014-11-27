@@ -6,23 +6,13 @@ namespace :analysis do
       begin
         engine       = Fortune::Analysis::CurrencyEx.new(investment)
         hourly_rate  = engine.hourly_rate
-        calculations = engine.data
+        data         = engine.data
 
-        ap calculations
-        flogger.info calculations
+        ap data
+        flogger.info data
         flogger.info "Current rate (as of #{hourly_rate.datetime}) = $#{hourly_rate.price}"
 
-        if engine.sell?
-          subject = "Time to sell #{investment.buy_currency}!"
-        elsif engine.loss_beyond_threshold?
-          subject = "WARNING: Investment dropped #{investment.loss_rate}"
-        end
-
-        if subject
-          Fortune::Mailer.send(subject: subject,
-                               content: html_body(calculations, hourly_rate))
-          flogger.info "Email sent"
-        end
+        engine.notify_buyer if engine.notify?
       rescue Fortune::Analysis::MissingDataError => md_error
         flogger.error md_error.message
       end
@@ -92,11 +82,5 @@ namespace :analysis do
 
       reporter.info(output)
     end
-  end
-
-  def html_body(calculations, hourly_rate)
-    "#{calculations.collect { |k,v| "#{k} = #{v}" }.join("<br/>")}
-    <br/>
-    Current rate (as of #{hourly_rate.datetime} = $#{hourly_rate.price}"
   end
 end

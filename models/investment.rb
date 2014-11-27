@@ -18,6 +18,8 @@ module Fortune
     field :loss_rate,     type: Float,   default: 0.03 # default is -3%
     field :sold,          type: Boolean, default: false
 
+    embeds_one :notification
+
     class << self
       def load_today(cap, currency, price)
         self.load(cap, currency, price, Date.today)

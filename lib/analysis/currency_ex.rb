@@ -15,6 +15,7 @@ module Fortune::Analysis
 
       raise MissingDataError.new("Missing Buy BankRate for #{@investment.attributes.to_s}")  unless @buy_bank_rate
       raise MissingDataError.new("Missing Sell BankRate for #{@investment.attributes.to_s}") unless @sell_bank_rate
+      raise MissingDataError.new("Missing Hourly Rate for #{@investment.attributes.to_s}") unless @hourly_rate
     end
 
     ###

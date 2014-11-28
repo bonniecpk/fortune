@@ -1,7 +1,7 @@
 require_relative "../../spec_helper"
 
 describe Fortune::Analysis::CurrencyEx do
-  DEBUG = false
+  DEBUG = ENV["DEBUG"] || false
 
   before(:all) do
     @investment = create(:investment)
@@ -45,12 +45,6 @@ describe Fortune::Analysis::CurrencyEx do
         expect(@analysis.current_capital).to eq(@analysis.converted_capital / 
                                                 @analysis.actual_sell_price)
       end
-
-      it "#current_capital_with_interest" do
-        expect(@analysis.current_capital_with_interest).to \
-          eq((@analysis.converted_capital + @analysis.converted_interest) / 
-             @analysis.actual_sell_price)
-      end
     end
 
     context "Analysis methods" do
@@ -60,7 +54,7 @@ describe Fortune::Analysis::CurrencyEx do
 
       it "#profit_delta" do
         expect(@analysis.profit_delta).to \
-          eq(((@analysis.current_capital_with_interest - @analysis.original_capital) / 
+          eq(((@analysis.current_capital - @analysis.original_capital) / 
               @analysis.original_capital).round(2))
       end
     end
@@ -73,7 +67,7 @@ describe Fortune::Analysis::CurrencyEx do
       it "#make_even_sell_price" do
         expect(@analysis.make_even_sell_price).to \
           eq(@investment.capital / 
-             (@analysis.converted_capital_with_interest * (1 - @sell_bank_rate.fee)))
+             (@analysis.converted_capital * (1 - @sell_bank_rate.fee)))
       end
     end
 
@@ -82,7 +76,7 @@ describe Fortune::Analysis::CurrencyEx do
         # Save a profit hourly rate
         create(:hourly_rate,
                currency: @investment.buy_currency,
-               price: @investment.buy_price * (1 + 5 * @investment.target_rate),
+               price: @investment.buy_price * (1 - 5 * @investment.target_rate),
                datetime: DateTime.now - 1.hour)
         analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
 
@@ -92,10 +86,10 @@ describe Fortune::Analysis::CurrencyEx do
       end
 
       it "Reach loss threshold" do
-        # Save a loss hourly rate
+        # Save a loss hourly rate. Make it lose so much and interest can't be cover
         create(:hourly_rate,
                currency: @investment.buy_currency,
-               price: @investment.buy_price * (1 - 5 * @investment.loss_rate),
+               price: @investment.buy_price * 100000,
                datetime: DateTime.now - 1.hour)
         analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
 
@@ -108,7 +102,7 @@ describe Fortune::Analysis::CurrencyEx do
         # Save a profit hourly rate
         create(:hourly_rate,
                currency: @investment.buy_currency,
-               price: @investment.buy_price * (2 + @investment.target_rate),
+               price: @investment.buy_price * (1 - @investment.target_rate),
                datetime: DateTime.now - 1.hour)
         analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
         @investment.notification = Fortune::Notification.new(percent: analysis.profit_delta)
@@ -122,9 +116,11 @@ describe Fortune::Analysis::CurrencyEx do
         # Save a profit hourly rate
         create(:hourly_rate,
                currency: @investment.buy_currency,
-               price: @investment.buy_price * (1 + 5 * @investment.target_rate),
+               price: @investment.buy_price * (1 - 5 * @investment.target_rate),
                datetime: DateTime.now - 1.hour)
         analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
+
+        ap analysis.data if DEBUG
 
         expect(analysis.notify?).to eq(true)
       end
@@ -133,6 +129,8 @@ describe Fortune::Analysis::CurrencyEx do
         @investment.notification = Fortune::Notification.new(percent: -0.03)
         analysis                 = Fortune::Analysis::CurrencyEx.new(@investment)
 
+        ap analysis.data if DEBUG
+
         # Save a hourly rate that makes even
         create(:hourly_rate,
                currency: @investment.buy_currency,
@@ -140,6 +138,7 @@ describe Fortune::Analysis::CurrencyEx do
                datetime: DateTime.now - 1.hour)
 
         analysis2 = Fortune::Analysis::CurrencyEx.new(@investment)
+        ap analysis2.data if DEBUG
         expect(analysis2.notify?).to eq(true)
       end
     end

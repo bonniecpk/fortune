@@ -4,7 +4,7 @@ FactoryGirl.define do
     i.base_currency { "USD" }
     i.buy_currency  { "BRL" }
     i.buy_price     { rand(2.0..120) }
-    i.buy_date      { Date.today - rand(60).days }
+    i.buy_date      { Date.today - rand(365).days }
     i.target_rate   { rand(0.01..0.1) }
     i.loss_rate     { rand(0.01..0.1) }
     i.sold          { false }

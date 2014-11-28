@@ -3,29 +3,54 @@ require_relative "../../spec_helper"
 describe Fortune::Analysis::CurrencyEx do
   DEBUG = ENV["DEBUG"] || false
 
+  # Save all the necessary info into database for analysis engine to process
+  def sample_data(investment)
+    {
+      buy_bank_rate: create(:bank_rate, 
+                            base_currency: investment.base_currency,
+                            to_currency: investment.buy_currency),
+      sell_bank_rate: create(:bank_rate, 
+                             base_currency: investment.buy_currency,
+                             to_currency: investment.base_currency),
+      bank_interest: create(:bank_interest,
+                            currency: investment.buy_currency),
+      hourly_rate: create(:hourly_rate,
+                          currency: investment.buy_currency,
+                          price: investment.buy_price,
+                          datetime: DateTime.now - 2.hour)
+    }
+  end
+
   before(:all) do
-    @investment = create(:investment)
+    @investment = build(:investment)
   end
 
   it "Missing bank rate" do
-    expect { Fortune::Analysis::CurrencyEx.new(@investment) }.to raise_error(Fortune::Analysis::MissingDataError)
+    expect { Fortune::Analysis::CurrencyEx.new(@investment) }.to \
+      raise_error(Fortune::Analysis::MissingDataError)
   end
 
-  context "Good data" do
+  context "#interest_mature?" do
+    it "Matured" do
+      investment = build(:investment, buy_date: Date.today - 2.years)
+      sample     = sample_data(investment)
+      analysis   = Fortune::Analysis::CurrencyEx.new(investment)
+
+      expect(analysis.interest_mature?).to be(true)
+    end
+
+    it "Not matured" do
+      investment = build(:investment, buy_date: Date.today + 1.day)
+      sample     = sample_data(investment)
+      analysis   = Fortune::Analysis::CurrencyEx.new(investment)
+
+      expect(analysis.interest_mature?).to be(false)
+    end
+  end
+
+  context "Randomized data testing" do
     before(:each) do
-      # Save all the necessary info into database for analysis engine to process
-      @buy_bank_rate = create(:bank_rate, 
-                              base_currency: @investment.base_currency,
-                              to_currency: @investment.buy_currency)
-      @sell_bank_rate = create(:bank_rate, 
-                               base_currency: @investment.buy_currency,
-                               to_currency: @investment.base_currency)
-      @bank_interest = create(:bank_interest,
-                              currency: @investment.buy_currency)
-      @hourly_rate   = create(:hourly_rate,
-                              currency: @investment.buy_currency,
-                              price: @investment.buy_price,
-                              datetime: DateTime.now - 2.hour)
+      @sample = sample_data(@investment)
     end
 
     context "Investment info" do
@@ -67,7 +92,7 @@ describe Fortune::Analysis::CurrencyEx do
       it "#make_even_sell_price" do
         expect(@analysis.make_even_sell_price).to \
           eq(@investment.capital / 
-             (@analysis.converted_capital * (1 - @sell_bank_rate.fee)))
+             (@analysis.converted_capital * (1 - @sample[:sell_bank_rate].fee)))
       end
     end
 
@@ -104,7 +129,8 @@ describe Fortune::Analysis::CurrencyEx do
                currency: @investment.buy_currency,
                price: @investment.buy_price * (1 - @investment.target_rate),
                datetime: DateTime.now - 1.hour)
-        analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
+
+        analysis                 = Fortune::Analysis::CurrencyEx.new(@investment)
         @investment.notification = Fortune::Notification.new(percent: analysis.profit_delta)
         
         expect(analysis.notify?).to eq(false)

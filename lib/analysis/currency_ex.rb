@@ -156,7 +156,7 @@ module Fortune::Analysis
       flogger.info "Email sent"
 
       # This line will replace an existing notification in MongoDB if it ever exists
-      @investment.notification = Notification.new(percent: profit_delta)
+      @investment.notification = Fortune::Notification.new(percent: profit_delta)
     end
 
     private

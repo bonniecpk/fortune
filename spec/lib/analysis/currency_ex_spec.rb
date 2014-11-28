@@ -1,6 +1,8 @@
 require_relative "../../spec_helper"
 
 describe Fortune::Analysis::CurrencyEx do
+  DEBUG = false
+
   before(:all) do
     @investment = create(:investment)
   end
@@ -56,9 +58,11 @@ describe Fortune::Analysis::CurrencyEx do
         # Save a profit hourly rate
         create(:hourly_rate,
                currency: @investment.buy_currency,
-               price: @investment.buy_price * (2 + @investment.target_rate),
+               price: @investment.buy_price * (1 + 5 * @investment.target_rate),
                datetime: DateTime.now - 1.hour)
         analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
+
+        ap analysis.data if DEBUG
 
         expect(analysis.notify?).to eq(true)
       end
@@ -67,9 +71,11 @@ describe Fortune::Analysis::CurrencyEx do
         # Save a loss hourly rate
         create(:hourly_rate,
                currency: @investment.buy_currency,
-               price: @investment.buy_price * (1 - 2 * @investment.loss_rate),
+               price: @investment.buy_price * (1 - 5 * @investment.loss_rate),
                datetime: DateTime.now - 1.hour)
         analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
+
+        ap analysis.data if DEBUG
 
         expect(analysis.notify?).to eq(true)
       end
@@ -87,32 +93,33 @@ describe Fortune::Analysis::CurrencyEx do
       end
 
       it "Notified and delta profit is changed" do
+        @investment.notification = Fortune::Notification.new(percent: 0)
+
         # Save a profit hourly rate
         create(:hourly_rate,
                currency: @investment.buy_currency,
-               price: @investment.buy_price * (2 + @investment.target_rate),
+               price: @investment.buy_price * (1 + 5 * @investment.target_rate),
                datetime: DateTime.now - 1.hour)
         analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
-        @investment.notification = Fortune::Notification.new(percent: analysis.profit_delta)
 
-        # Save a bigger profit hourly rate with closer time
-        create(:hourly_rate,
-               currency: @investment.buy_currency,
-               price: @investment.buy_price * (3 + @investment.target_rate),
-               datetime: DateTime.now - 30.minutes)
-        analysis2    = Fortune::Analysis::CurrencyEx.new(@investment)
-
-        expect(analysis2.notify?).to eq(true)
+        expect(analysis.notify?).to eq(true)
       end
     end
 
     context "#notify_buyer" do
       it "New notification" do
+        analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
+        analysis.notify_buyer
 
+        expect(@investment.notification.class).to eq(Fortune::Notification)
       end
 
       it "Update notification" do
+        @investment.notification = Fortune::Notification.new(percent: 0)
+        analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
+        analysis.notify_buyer
 
+        expect(@investment.notification.percent).to eq(analysis.profit_delta)
       end
     end
   end

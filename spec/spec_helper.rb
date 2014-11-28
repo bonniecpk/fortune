@@ -6,10 +6,14 @@ ENV["RACK_ENV"]    ||= "test"
 
 require_relative '../config/init'
 
+require 'email_spec'  # need to load ../config/init first
+
 include Rack::Test::Methods
 
 RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
+  config.include EmailSpec::Helpers
+  config.include EmailSpec::Matchers
 
   # Run specs in random order to surface order dependencies. If you find an
   # order dependency and want to debug it, you can fix the order by providing

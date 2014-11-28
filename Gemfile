@@ -41,4 +41,5 @@ group :test do
   gem 'factory_girl'
   gem 'database_cleaner'
   gem 'shoulda-matchers'
+  gem 'email_spec'
 end

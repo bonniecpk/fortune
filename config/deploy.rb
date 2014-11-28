@@ -1,6 +1,3 @@
-# config valid only for Capistrano 3.1
-lock '3.2.1'
-
 def server_domains(defaults = nil)
   ask(:servers, defaults.kind_of?(Array) ? defaults.join(",") : defaults)
   servers = fetch(:servers)

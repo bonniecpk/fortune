@@ -53,6 +53,18 @@ describe Fortune::Analysis::CurrencyEx do
       end
     end
 
+    context "Analysis methods" do
+      before(:each) do
+        @analysis   = Fortune::Analysis::CurrencyEx.new(@investment)
+      end
+
+      it "#profit_delta" do
+        expect(@analysis.profit_delta).to \
+          eq(((@analysis.current_capital_with_interest - @analysis.original_capital) / 
+              @analysis.original_capital).round(2))
+      end
+    end
+
     context "#notify?" do
       it "Reach profit line" do
         # Save a profit hourly rate

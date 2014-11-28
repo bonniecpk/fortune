@@ -57,7 +57,7 @@ module Fortune::Analysis
     end
 
     def profit_delta
-      (current_capital_with_interest - original_capital / original_capital).round(2)
+      ((current_capital_with_interest - original_capital) / original_capital).round(2)
     end
 
     ###

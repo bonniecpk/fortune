@@ -15,6 +15,7 @@ module Fortune::Analysis
 
       raise MissingDataError.new("Missing Buy BankRate for #{@investment.attributes.to_s}")  unless @buy_bank_rate
       raise MissingDataError.new("Missing Sell BankRate for #{@investment.attributes.to_s}") unless @sell_bank_rate
+      raise MissingDataError.new("Missing Hourly Rate for #{@investment.attributes.to_s}") unless @hourly_rate
     end
 
     ###
@@ -53,6 +54,10 @@ module Fortune::Analysis
 
     def loss_threshold
       @investment.loss_threshold
+    end
+
+    def profit_delta
+      ((current_capital_with_interest - original_capital) / original_capital).round(2)
     end
 
     ###
@@ -129,6 +134,37 @@ module Fortune::Analysis
 
     def converted_capital_with_interest
       converted_capital + converted_interest
+    end
+
+    ###
+    # Notifications
+    ###
+    
+    def notify?
+      if sell? || loss_beyond_threshold?
+        notification = @investment.notification
+        return true unless notification
+        return notification.percent != profit_delta
+      end
+
+      return false
+    end
+
+    def notify_buyer
+      subject = "#{@investment.buy_currency}: #{profit_delta}"
+
+      Fortune::Mailer.send(subject: subject, content: html_body)
+      flogger.info "Email sent"
+
+      # This line will replace an existing notification in MongoDB if it ever exists
+      @investment.notification = Fortune::Notification.new(percent: profit_delta)
+    end
+
+    private
+    def html_body
+      "#{data.collect { |k,v| "#{k} = #{v}" }.join("<br/>")}
+       <br/>
+       Current rate (as of #{@hourly_rate.datetime} = $#{@hourly_rate.price}"
     end
   end
 end

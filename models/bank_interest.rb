@@ -26,7 +26,7 @@ module Fortune
     # Number of times the interest will mature annually
     ###
     def yearly_maturity
-      12 / maturity
+      12.0 / maturity
     end
   end
 end

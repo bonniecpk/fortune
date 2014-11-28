@@ -33,14 +33,14 @@ namespace :load do
   task :bank_rate  do
     base = ask("Base Currency (USD)? ")
     to   = ask("To Currency (BRL)? ")
-    fee    = ask("Conversion fee (8 for 8%)? ")
+    fee    = ask("Conversion fee (0.08 for 8%)? ")
 
     Fortune::BankRate.load(base, to, fee)
   end
 
   task :bank_interest  do
     base     = ask("Currency (USD)? ")
-    rate     = ask("Interest (8 for 8%)? ")
+    rate     = ask("Interest (0.08 for 8%)? ")
     maturity = ask("Maturity Period (12 for 12 months)? ")
 
     Fortune::BankInterest.load(base, rate, maturity)

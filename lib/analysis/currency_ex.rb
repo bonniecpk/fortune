@@ -108,6 +108,14 @@ module Fortune::Analysis
       1 / target_sell_price
     end
 
+    def make_even_sell_price
+      @investment.capital / (converted_capital_with_interest * (1 - @sell_bank_rate.fee))
+    end
+
+    def make_even_inverted_sell_price
+      1 / make_even_sell_price
+    end
+
     ###
     # Interest related methods
     ###
@@ -141,8 +149,11 @@ module Fortune::Analysis
     ###
     
     def notify?
-      if sell? || loss_beyond_threshold?
-        notification = @investment.notification
+      notification = @investment.notification
+
+      if notification && notification.percent < 0 && profit_delta >= 0
+        return true
+      elsif sell? || loss_beyond_threshold?
         return true unless notification
         return notification.percent != profit_delta
       end

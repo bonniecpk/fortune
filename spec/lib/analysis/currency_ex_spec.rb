@@ -65,6 +65,18 @@ describe Fortune::Analysis::CurrencyEx do
       end
     end
 
+    context "Buy/Sell methods" do
+      before(:each) do
+        @analysis   = Fortune::Analysis::CurrencyEx.new(@investment)
+      end
+
+      it "#make_even_sell_price" do
+        expect(@analysis.make_even_sell_price).to \
+          eq(@investment.capital / 
+             (@analysis.converted_capital_with_interest * (1 - @sell_bank_rate.fee)))
+      end
+    end
+
     context "#notify?" do
       it "Reach profit line" do
         # Save a profit hourly rate
@@ -116,11 +128,26 @@ describe Fortune::Analysis::CurrencyEx do
 
         expect(analysis.notify?).to eq(true)
       end
+
+      it "Notified loss and now make even" do
+        @investment.notification = Fortune::Notification.new(percent: -0.03)
+        analysis                 = Fortune::Analysis::CurrencyEx.new(@investment)
+
+        # Save a hourly rate that makes even
+        create(:hourly_rate,
+               currency: @investment.buy_currency,
+               price: analysis.make_even_inverted_sell_price,
+               datetime: DateTime.now - 1.hour)
+
+        analysis2 = Fortune::Analysis::CurrencyEx.new(@investment)
+        expect(analysis2.notify?).to eq(true)
+      end
     end
 
     context "#notify_buyer" do
       it "New notification" do
         analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
+
         analysis.notify_buyer
 
         expect(@investment.notification.class).to eq(Fortune::Notification)
@@ -128,7 +155,8 @@ describe Fortune::Analysis::CurrencyEx do
 
       it "Update notification" do
         @investment.notification = Fortune::Notification.new(percent: 0)
-        analysis    = Fortune::Analysis::CurrencyEx.new(@investment)
+        analysis                 = Fortune::Analysis::CurrencyEx.new(@investment)
+
         analysis.notify_buyer
 
         expect(@investment.notification.percent).to eq(analysis.profit_delta)

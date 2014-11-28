@@ -48,7 +48,7 @@ describe Fortune::Analysis::CurrencyEx do
     end
   end
 
-  context "Randomized data testing" do
+  context "Default sample data" do
     before(:each) do
       @sample = sample_data(@investment)
     end

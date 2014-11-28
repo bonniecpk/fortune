@@ -11,7 +11,7 @@ module Fortune
     %w(debug info error fatal warn).each do |func|
       define_method(func) do |msg|
         super(msg)
-        puts "#{msg}"
+        puts "#{msg}" unless ENV["RACK_ENV"] == 'test'
       end
     end
   end

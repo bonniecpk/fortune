@@ -25,19 +25,19 @@ module Fortune::Analysis
     def data
       %w(original_capital 
          converted_capital 
-         target_return
          current_capital 
+         target_return
          target_sell_price 
          target_inverted_sell_price 
          actual_buy_price 
          market_buy_price 
-         yearly_maturity 
-         interest
-         converted_interest 
+         annual_maturity 
+         matured_interest
+         converted_interest
+         current_interest
          current_sell_price 
          actual_sell_price 
-         current_capital
-         current_capital_with_interest 
+         profit_delta
          loss_threshold).inject({}) do |hash, method|
         hash[method.to_sym] = send(method)
         hash
@@ -57,7 +57,7 @@ module Fortune::Analysis
     end
 
     def profit_delta
-      ((current_capital_with_interest - original_capital) / original_capital).round(2)
+      ((current_capital - original_capital) / original_capital).round(2)
     end
 
     ###
@@ -76,10 +76,6 @@ module Fortune::Analysis
       converted_capital / actual_sell_price
     end
 
-    def current_capital_with_interest
-      (converted_capital + converted_interest) / actual_sell_price
-    end
-
     ###
     # Buy/Sell price methods
     ###
@@ -92,8 +88,9 @@ module Fortune::Analysis
       @investment.buy_price
     end
 
+    # The target sell price is more beneficial when the interest is matured
     def target_sell_price
-      target_return / (converted_capital_with_interest * (1 - @sell_bank_rate.fee))
+      target_return / (converted_capital * (1 - @sell_bank_rate.fee))
     end
 
     def actual_sell_price
@@ -108,32 +105,53 @@ module Fortune::Analysis
       1 / target_sell_price
     end
 
+    # The make-even price is more beneficial when the interest is matured
+    def make_even_sell_price
+      @investment.capital / (converted_capital * (1 - @sell_bank_rate.fee))
+    end
+
+    def make_even_inverted_sell_price
+      1 / make_even_sell_price
+    end
+
     ###
     # Interest related methods
     ###
     
-    def interest
+    def matured_interest
       converted_interest / actual_sell_price
     end
 
-    def yearly_maturity
-      @bank_interest.yearly_maturity
+    def current_interest
+      interest_mature? ? matured_interest : 0
+    end
+
+    def annual_maturity
+      @bank_interest.annual_maturity
+    end
+
+    def interest_mature?
+      Date.today - @bank_interest.maturity.months >= @investment.buy_date
     end
 
     ###
     # Methods provide info based on the purchased currency
     ###
     
+    # Converted capital may be added with interest when it is matured
     def converted_capital
-      @investment.converted_capital
+      @investment.converted_capital + current_converted_interest
     end
 
     def converted_interest
-      @bank_interest ? converted_capital * (@bank_interest.rate / yearly_maturity) : 0
+      @bank_interest ? @investment.converted_capital * 
+        (@bank_interest.rate / annual_maturity) : 
+        0
     end
 
-    def converted_capital_with_interest
-      converted_capital + converted_interest
+    # If interest hasn't matured yet, it returns 0
+    def current_converted_interest
+      interest_mature? ? converted_interest : 0
     end
 
     ###
@@ -141,8 +159,11 @@ module Fortune::Analysis
     ###
     
     def notify?
-      if sell? || loss_beyond_threshold?
-        notification = @investment.notification
+      notification = @investment.notification
+
+      if notification && notification.percent < 0 && profit_delta >= 0
+        return true
+      elsif sell? || loss_beyond_threshold?
         return true unless notification
         return notification.percent != profit_delta
       end

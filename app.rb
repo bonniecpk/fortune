@@ -25,5 +25,9 @@ module Fortune
     get '/scroll' do
       erb :scroll
     end
+
+    get '/spinner' do
+      haml :spinner
+    end
   end
 end

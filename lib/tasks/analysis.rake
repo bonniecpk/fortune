@@ -1,6 +1,6 @@
 namespace :analysis do
   task :notify do
-    investments = Fortune::Investment.where(sold: false)
+    investments = Fortune::Investment.where(status: "in-progress")
 
     investments.each do |investment|
       begin

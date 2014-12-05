@@ -53,9 +53,31 @@ describe Fortune::Analysis::CurrencyEx do
       @sample = sample_data(@investment)
     end
 
-    context "Investment info" do
+    context "Default engine" do
       before(:each) do
         @analysis   = Fortune::Analysis::CurrencyEx.new(@investment)
+      end
+
+      it "#transfer_investment" do
+        new_i = @analysis.transfer_investment
+        
+        if DEBUG
+          ap @analysis.data
+          ap @investment
+          ap new_i 
+        end
+
+        expect(new_i.capital).to     eq(@investment.capital + @analysis.interest_at_buy_price)
+        expect(new_i.target_rate).to eq((2 * @investment.target_rate - 
+                                         (@analysis.interest_at_buy_price / @investment.capital)).
+                                         round(2))
+        expect(new_i.buy_date).to    eq(Date.today)
+        expect(new_i.parent_id).to   eq(@investment.id)
+      end
+
+      it "#interest_at_buy_price" do
+        expect(@analysis.interest_at_buy_price).to be(@analysis.converted_interest / 
+                                                      @analysis.actual_buy_price)
       end
 
       it "#original_capital" do 
@@ -70,23 +92,11 @@ describe Fortune::Analysis::CurrencyEx do
         expect(@analysis.current_capital).to eq(@analysis.converted_capital / 
                                                 @analysis.actual_sell_price)
       end
-    end
-
-    context "Analysis methods" do
-      before(:each) do
-        @analysis   = Fortune::Analysis::CurrencyEx.new(@investment)
-      end
 
       it "#profit_delta" do
         expect(@analysis.profit_delta).to \
           eq(((@analysis.current_capital - @analysis.original_capital) / 
               @analysis.original_capital).round(2))
-      end
-    end
-
-    context "Buy/Sell methods" do
-      before(:each) do
-        @analysis   = Fortune::Analysis::CurrencyEx.new(@investment)
       end
 
       it "#make_even_sell_price" do

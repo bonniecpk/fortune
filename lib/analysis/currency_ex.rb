@@ -134,6 +134,10 @@ module Fortune::Analysis
       Date.today - @bank_interest.maturity.months >= @investment.buy_date
     end
 
+    def interest_at_buy_price
+      converted_interest / actual_buy_price
+    end
+
     ###
     # Methods provide info based on the purchased currency
     ###
@@ -179,6 +183,35 @@ module Fortune::Analysis
 
       # This line will replace an existing notification in MongoDB if it ever exists
       @investment.notification = Fortune::Notification.new(percent: profit_delta)
+    end
+
+    ###
+    # Misc
+    ###
+
+    def transfer_investment
+      new_i = Fortune::Investment.create(
+        capital: @investment.capital + interest_at_buy_price,
+        base_currency: @investment.base_currency,
+        buy_currency:  @investment.buy_currency,
+        buy_price:     @investment.buy_price,
+        buy_date:      Date.today,
+        target_rate:   (2 * @investment.target_rate - 
+                        (interest_at_buy_price / @investment.capital)).round(2),
+        loss_rate:     @investment.loss_rate,
+        parent_id:     @investment.id
+      )
+
+      @investment.status = "matured"
+      @investment.save!
+
+      Fortune::Mailer.send(
+        subject: "Transfer Investment: #{@investment.id} to #{new_i.id}", 
+        content: "Adjust bank_interest if different"
+      )
+      flogger.info "Investment #{@investment.id} is transferred to #{new_i.id}"
+
+      return new_i
     end
 
     private

@@ -10,14 +10,25 @@ module Fortune
     field :capital,       type: Float   # money invested
     field :base_currency, type: String,  default: "USD"
     field :buy_currency,  type: String
+    
     # the actual converted buy price from the bank (not market value)
     field :buy_price,     type: Float
     field :buy_date,      type: Date
     field :target_rate,   type: Float,   default: 0.03 # default is 3%
+    
     # loss rate is intended for email notification when loss is more than 5%
     field :loss_rate,     type: Float,   default: 0.03 # default is -3%
-    field :sold,          type: Boolean, default: false
 
+    # Statuses include:
+    #   in-progress
+    #   matured - due to interest maturity, investment can be started as
+    #             another investment
+    #   sold
+    field :status,        type: String,  default: "in-progress"
+    
+    # Reference the original investment
+    field :parent_id,     type: Moped::BSON::ObjectId
+    
     embeds_one :notification
 
     class << self

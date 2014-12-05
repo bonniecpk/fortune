@@ -7,6 +7,6 @@ FactoryGirl.define do
     i.buy_date      { Date.today - rand(365).days }
     i.target_rate   { rand(0.01..0.1) }
     i.loss_rate     { rand(0.01..0.1) }
-    i.sold          { false }
+    i.status        { "in-progress" }
   end
 end

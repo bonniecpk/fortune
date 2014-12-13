@@ -4,30 +4,11 @@ module Fortune
     serve_jst '/jst.js'
 
     get '/' do
-      'This is Fortune home page'
+      haml :index
     end
 
     get '/currency-graph' do
       haml :'currency-graph'
-    end
-
-    ##-------------------##
-    # Javascript Examples #
-    ##-------------------##
-    get '/drag-rect' do
-      erb :'drag-rect'
-    end
-
-    get '/mouseout' do
-      erb :mouseout
-    end
-
-    get '/scroll' do
-      erb :scroll
-    end
-
-    get '/spinner' do
-      haml :spinner
     end
   end
 end

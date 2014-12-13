@@ -1,5 +1,5 @@
 ##---------------------------------------------##
-# Libraries required for the included libraries #
+# Pre-load libraries for the included libraries #
 ##---------------------------------------------##
 #= require_self
 #= require vendors/jquery-2.1.1.min

@@ -32,7 +32,8 @@ module Fortune::OAuth2
       {
         firstname: json[:name][:givenName],
         lastname:  json[:name][:familyName],
-        email:     json[:emails][:value],
+        email:     json[:emails].first[:value],
+        avatar:    json[:image][:url],
         lang:      json[:language]
       }
     end

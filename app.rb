@@ -19,7 +19,7 @@ module Fortune
     get '/oauth2/callback/:vendor/?' do
       oauth   = _oauth_client(params)
       profile = oauth.get_profile(params[:code])
-      profile.inspect
+      Fortune::User.create(profile)
     end
 
     get '/currency-graph/?' do

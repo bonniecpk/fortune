@@ -31,7 +31,7 @@ describe Fortune::Analysis::CurrencyEx do
   end
 
   context "#interest_mature?" do
-    it "Matured" do
+    it "Yes" do
       investment = build(:investment, buy_date: Date.today - 2.years)
       sample     = sample_data(investment)
       analysis   = Fortune::Analysis::CurrencyEx.new(investment)
@@ -39,7 +39,7 @@ describe Fortune::Analysis::CurrencyEx do
       expect(analysis.interest_mature?).to be(true)
     end
 
-    it "Not matured" do
+    it "No" do
       investment = build(:investment, buy_date: Date.today + 1.day)
       sample     = sample_data(investment)
       analysis   = Fortune::Analysis::CurrencyEx.new(investment)

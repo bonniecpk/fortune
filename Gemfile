@@ -12,6 +12,7 @@ gem 'sprockets'
 gem 'unicorn'
 gem 'pony'
 gem 'coffee-script'
+gem 'oauth2'
 
 # A bundle bug: Need execjs and therubyracer for the deployed server to work
 gem 'execjs'

@@ -26,8 +26,6 @@ require "fileutils"
 require "pony"
 require "oauth2"
 
-FbGraph2.debug! if ENV["DEBUG"] == "true"
-
 FileUtils.mkdir_p("log") unless File.directory?("log")
 
 Mongoid.load!("config/mongoid.yml") #Dotenv.load must be run first

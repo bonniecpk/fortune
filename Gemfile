@@ -13,6 +13,7 @@ gem 'unicorn'
 gem 'pony'
 gem 'coffee-script'
 gem 'oauth2'
+#gem 'stormpath-sdk'
 
 # A bundle bug: Need execjs and therubyracer for the deployed server to work
 gem 'execjs'

@@ -1,5 +1,15 @@
 ENV["RACK_ENV"] ||= "development"
 
+############### Loading all environment variables ###################
+require "dotenv"
+Dotenv.load
+
+############### Setting up debugging ###################
+if ENV["RACK_ENV"] == 'development' || ENV['RACK_ENV'] == 'test'
+  require "pry"
+  require "shoulda/matchers"
+end
+
 ############### Loading gems ###############
 require "sinatra/base"
 require "sinatra/jstpages"
@@ -12,17 +22,11 @@ require "moped"
 require "mongoid"
 require "highline/import"
 require "awesome_print"
-require "dotenv"
 require "fileutils"
 require "pony"
 require "oauth2"
 
-if ENV["RACK_ENV"] == 'development' || ENV['RACK_ENV'] == 'test'
-  require "pry"
-  require "shoulda/matchers"
-end
-
-Dotenv.load
+FbGraph2.debug! if ENV["DEBUG"] == "true"
 
 FileUtils.mkdir_p("log") unless File.directory?("log")
 

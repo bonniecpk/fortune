@@ -19,7 +19,7 @@ module Fortune
     field :sold,          type: Boolean, default: false
 
     embeds_one :notification
-    embeds_many :interests
+    embeds_one :interest
 
     class << self
       def load_today(cap, currency, price)
@@ -64,7 +64,7 @@ module Fortune
     end
 
     def immature_interest?
-      interests.detect{ |i| !i.mature? }.present?
+      interest.try(:mature?) == false
     end
   end
 end

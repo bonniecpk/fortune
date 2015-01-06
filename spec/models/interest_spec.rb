@@ -16,4 +16,20 @@ describe Fortune::Interest do
       expect(interest.mature?).to eq(true)
     end
   end
+
+  context "#actual_amount" do
+    let(:investment) { create(:investment) }
+
+    it "amount exists" do
+      interest = build(:interest, amount: 300)
+      investment.interest = interest
+      expect(interest.actual_amount).to be(interest.amount)
+    end
+
+    it "amount doesn't exist" do
+      interest = build(:interest)
+      investment.interest = interest
+      expect(interest.actual_amount).to be(investment.capital * (1 + interest.rate / interest.annual_maturity))
+    end
+  end
 end

@@ -11,12 +11,12 @@ describe Fortune::Investment do
     end
 
     it "No" do
-      @investment.interests = [build(:interest, mature_length: 1, start: Date.today - 1.month)]
+      @investment.interest = build(:interest, mature_length: 1, start: Date.today - 1.month)
       expect(@investment.immature_interest?).to be(false)
     end
 
     it "Yes" do
-      @investment.interests = [build(:interest, mature_length: 12)]
+      @investment.interest = build(:interest, mature_length: 12)
       expect(@investment.immature_interest?).to be(true)
     end
   end

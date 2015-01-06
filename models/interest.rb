@@ -6,17 +6,19 @@ module Fortune
     embedded_in :investment
 
     field :rate,            type: Float
+    field :amount,          type: Float,   default: 0
     field :mature_length,   type: Integer   # by months
     field :start,           type: Date
 
     class << self
       def load(investment_id, rate, mature_length, start)
         investment = Fortune::Investment.where(id: investment_id)
-        investment.interests << self.new(rate: rate, 
-                                         mature_length: mature_length,
-                                         start: Date.parse(start))
+        interest   = self.new(rate: rate,
+                              mature_length: mature_length,
+                              start: Date.parse(start))
+        investment.interests << interest
 
-        flogger.info "## Bank Interest saved with ID #{interest.attributes.to_s}"
+        flogger.info "## Interest saved in investment ID #{investment_id}. Interest: #{interest.attributes.to_s}"
       end
     end
 
@@ -29,6 +31,10 @@ module Fortune
 
     def mature?
       start + mature_length.months <= Date.today
+    end
+
+    def actual_amount
+      amount == 0 ? investment.capital * (1 + rate / annual_maturity) : amount
     end
   end
 end

@@ -30,7 +30,7 @@ describe Fortune::Interest do
       interest = build(:interest)
       investment.interest = interest
       expect(interest.actual_converted_amount).to be(investment.converted_capital * 
-                                           (1 + interest.rate / interest.annual_maturity))
+                                                     (interest.rate / interest.annual_maturity))
     end
   end
 

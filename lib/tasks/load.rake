@@ -44,6 +44,6 @@ namespace :load do
     maturity = ask("Maturity Length (12 for 12 months)? ")
     start    = ask("Start Date (2014-10-14)? ")
 
-    Fortune::BankInterest.load(id, rate, maturity, start)
+    Fortune::Interest.load(id, rate, maturity, start)
   end
 end

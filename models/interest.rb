@@ -12,13 +12,15 @@ module Fortune
 
     class << self
       def load(investment_id, rate, mature_length, start)
-        investment = Fortune::Investment.where(id: investment_id)
+        investment = Fortune::Investment.where(id: investment_id).first
         interest   = self.new(rate: rate,
                               mature_length: mature_length,
                               start: Date.parse(start))
-        investment.interests << interest
+        investment.interest = interest
 
         flogger.info "## Interest saved in investment ID #{investment_id}. Interest: #{interest.attributes.to_s}"
+      rescue
+        flogger.info "## Investment ID not found (#{investment_id}). Interest: #{interest.attributes.to_s}"
       end
     end
 
@@ -35,7 +37,7 @@ module Fortune
 
     # amount can override the actual interest calculation if it exists
     def actual_converted_amount
-      amount == 0 ? investment.converted_capital * (1 + rate / annual_maturity) : amount
+      amount == 0 ? investment.converted_capital * (rate / annual_maturity) : amount
     end
 
     # the interest will be zero if it's immature. Otherwise, the actual amount is returned

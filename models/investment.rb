@@ -19,6 +19,7 @@ module Fortune
     field :sold,          type: Boolean, default: false
 
     embeds_one :notification
+    embeds_one :interest
 
     class << self
       def load_today(cap, currency, price)
@@ -60,6 +61,24 @@ module Fortune
 
     def converted_capital
       capital * buy_price
+    end
+
+    def immature_interest?
+      interest.try(:mature?) == false
+    end
+
+    # Value returned based on the buy-in currency
+    def actual_converted_interest
+      interest ? interest.actual_converted_amount : 0
+    end
+
+    # Value returned based on the buy-in currency
+    def current_converted_interest
+      interest ? interest.current_converted_amount : 0
+    end
+
+    def annual_maturity
+      interest ? interest.annual_maturity : 0
     end
   end
 end

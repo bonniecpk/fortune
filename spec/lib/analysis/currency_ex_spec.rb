@@ -1,7 +1,7 @@
 require_relative "../../spec_helper"
 
 describe Fortune::Analysis::CurrencyEx do
-  DEBUG = ENV["DEBUG"] || false
+  DEBUG = ENV["DEBUG"].try(:downcase) == "true"
 
   # Save all the necessary info into database for analysis engine to process
   def sample_data(investment)
@@ -12,8 +12,6 @@ describe Fortune::Analysis::CurrencyEx do
       sell_bank_rate: create(:bank_rate, 
                              base_currency: investment.buy_currency,
                              to_currency: investment.base_currency),
-      bank_interest: create(:bank_interest,
-                            currency: investment.buy_currency),
       hourly_rate: create(:hourly_rate,
                           currency: investment.buy_currency,
                           price: investment.buy_price,
@@ -28,24 +26,6 @@ describe Fortune::Analysis::CurrencyEx do
   it "Missing bank rate" do
     expect { Fortune::Analysis::CurrencyEx.new(@investment) }.to \
       raise_error(Fortune::Analysis::MissingDataError)
-  end
-
-  context "#interest_mature?" do
-    it "Matured" do
-      investment = build(:investment, buy_date: Date.today - 2.years)
-      sample     = sample_data(investment)
-      analysis   = Fortune::Analysis::CurrencyEx.new(investment)
-
-      expect(analysis.interest_mature?).to be(true)
-    end
-
-    it "Not matured" do
-      investment = build(:investment, buy_date: Date.today + 1.day)
-      sample     = sample_data(investment)
-      analysis   = Fortune::Analysis::CurrencyEx.new(investment)
-
-      expect(analysis.interest_mature?).to be(false)
-    end
   end
 
   context "Default sample data" do

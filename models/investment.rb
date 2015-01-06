@@ -66,5 +66,10 @@ module Fortune
     def immature_interest?
       interest.try(:mature?) == false
     end
+
+    # Value returned as the converted currency
+    def interest_amount
+      interest.current_amount
+    end
   end
 end

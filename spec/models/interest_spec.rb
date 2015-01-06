@@ -29,7 +29,23 @@ describe Fortune::Interest do
     it "amount doesn't exist" do
       interest = build(:interest)
       investment.interest = interest
-      expect(interest.actual_amount).to be(investment.capital * (1 + interest.rate / interest.annual_maturity))
+      expect(interest.actual_amount).to be(investment.converted_capital * (1 + interest.rate / interest.annual_maturity))
+    end
+  end
+
+  context "#current_amount" do
+    let(:investment) { create(:investment) }
+
+    it "interest matured" do
+      interest = build(:interest, amount: 300, mature_length: 1, start: Date.today - 1.month)
+      investment.interest = interest
+      expect(interest.current_amount).to be(interest.amount)
+    end
+
+    it "immature interest" do
+      interest = build(:interest, mature_length: 12)
+      investment.interest = interest
+      expect(interest.current_amount).to be(0)
     end
   end
 end

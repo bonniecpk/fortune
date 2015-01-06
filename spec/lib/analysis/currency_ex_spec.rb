@@ -1,7 +1,7 @@
 require_relative "../../spec_helper"
 
 describe Fortune::Analysis::CurrencyEx do
-  DEBUG = ENV["DEBUG"] || false
+  DEBUG = ENV["DEBUG"].try(:downcase) == "true"
 
   # Save all the necessary info into database for analysis engine to process
   def sample_data(investment)

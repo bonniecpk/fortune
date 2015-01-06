@@ -22,11 +22,8 @@ gem 'therubyracer'
 # Javascript Related Gems
 gem 'sinatra-backbone'
 
-group :development, :test do
-  gem 'rake'
-end
-
 group :development do
+  gem 'rake'
   gem 'pry'
   gem 'pry-nav'
   gem 'shotgun'

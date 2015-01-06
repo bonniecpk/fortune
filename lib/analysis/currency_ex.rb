@@ -127,7 +127,7 @@ module Fortune::Analysis
     end
 
     def annual_maturity
-      @investment.interest.annual_maturity
+      @investment.annual_maturity
     end
 
     ###

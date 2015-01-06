@@ -40,7 +40,7 @@ module Fortune
 
     # the interest will be zero if it's immature. Otherwise, the actual amount is returned
     def current_converted_amount
-      mature? ? actual_amount : 0
+      mature? ? actual_converted_amount : 0
     end
   end
 end

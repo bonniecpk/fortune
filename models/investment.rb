@@ -69,12 +69,16 @@ module Fortune
 
     # Value returned based on the buy-in currency
     def actual_converted_interest
-      interest.actual_converted_amount
+      interest ? interest.actual_converted_amount : 0
     end
 
     # Value returned based on the buy-in currency
     def current_converted_interest
-      interest.current_converted_amount
+      interest ? interest.current_converted_amount : 0
+    end
+
+    def annual_maturity
+      interest ? interest.annual_maturity : 0
     end
   end
 end

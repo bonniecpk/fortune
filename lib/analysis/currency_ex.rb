@@ -8,12 +8,11 @@ module Fortune::Analysis
                                                 to_currency:   investment.buy_currency).first
       @sell_bank_rate = Fortune::BankRate.where(base_currency: investment.buy_currency,
                                                 to_currency:   investment.base_currency).first
-      @bank_interest  = Fortune::BankInterest.where(currency:  investment.buy_currency).first
       @hourly_rate    = Fortune::HourlyRate.where(currency: investment.buy_currency,
                                                   datetime: {"$lt" => DateTime.now}).
                                             desc(:datetime).first
 
-      raise MissingDataError.new("Missing Buy BankRate for #{@investment.attributes.to_s}")  unless @buy_bank_rate
+      raise MissingDataError.new("Missing Buy BankRate for #{@investment.attributes.to_s}") unless @buy_bank_rate
       raise MissingDataError.new("Missing Sell BankRate for #{@investment.attributes.to_s}") unless @sell_bank_rate
       raise MissingDataError.new("Missing Hourly Rate for #{@investment.attributes.to_s}") unless @hourly_rate
     end
@@ -122,16 +121,13 @@ module Fortune::Analysis
       converted_interest / actual_sell_price
     end
 
+    # Interest is zero if it's not mature
     def current_interest
-      interest_mature? ? matured_interest : 0
+      @investment.current_converted_interest / actual_sell_price
     end
 
     def annual_maturity
-      @bank_interest.annual_maturity
-    end
-
-    def interest_mature?
-      Date.today - @bank_interest.maturity.months >= @investment.buy_date
+      @investment.interest.annual_maturity
     end
 
     ###
@@ -144,14 +140,12 @@ module Fortune::Analysis
     end
 
     def converted_interest
-      @bank_interest ? @investment.converted_capital * 
-        (@bank_interest.rate / annual_maturity) : 
-        0
+      @investment.actual_converted_interest
     end
 
     # If interest hasn't matured yet, it returns 0
     def current_converted_interest
-      interest_mature? ? converted_interest : 0
+      @investment.current_converted_interest
     end
 
     ###

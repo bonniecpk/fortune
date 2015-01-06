@@ -30,19 +30,20 @@ namespace :load do
     Fortune::Investment.load(capital, currency, price, Date.parse(date))
   end
 
-  task :bank_rate  do
+  task :bank_rate do
     base = ask("Base Currency (USD)? ")
     to   = ask("To Currency (BRL)? ")
-    fee    = ask("Conversion fee (0.08 for 8%)? ")
+    fee  = ask("Conversion fee (0.08 for 8%)? ")
 
     Fortune::BankRate.load(base, to, fee)
   end
 
-  task :bank_interest  do
-    base     = ask("Currency (USD)? ")
+  task :interest do
+    id       = ask("Investment ID (i.e. 4d3ed089fb60ab534684b7e9)? ")
     rate     = ask("Interest (0.08 for 8%)? ")
-    maturity = ask("Maturity Period (12 for 12 months)? ")
+    maturity = ask("Maturity Length (12 for 12 months)? ")
+    start    = ask("Start Date (2014-10-14)? ")
 
-    Fortune::BankInterest.load(base, rate, maturity)
+    Fortune::BankInterest.load(id, rate, maturity, start)
   end
 end

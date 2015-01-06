@@ -34,12 +34,12 @@ module Fortune
     end
 
     # amount can override the actual interest calculation if it exists
-    def actual_amount
+    def actual_converted_amount
       amount == 0 ? investment.converted_capital * (1 + rate / annual_maturity) : amount
     end
 
     # the interest will be zero if it's immature. Otherwise, the actual amount is returned
-    def current_amount
+    def current_converted_amount
       mature? ? actual_amount : 0
     end
   end

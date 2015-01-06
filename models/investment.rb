@@ -67,9 +67,14 @@ module Fortune
       interest.try(:mature?) == false
     end
 
-    # Value returned as the converted currency
-    def interest_amount
-      interest.current_amount
+    # Value returned based on the buy-in currency
+    def actual_converted_interest
+      interest.actual_converted_amount
+    end
+
+    # Value returned based on the buy-in currency
+    def current_converted_interest
+      interest.current_converted_amount
     end
   end
 end

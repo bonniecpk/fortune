@@ -1,0 +1,10 @@
+#! /bin/bash
+
+echo "====================== START: `date` ========================"
+echo "RACK_ENV=$RACK_ENV"
+source /home/fortune/.rvm/scripts/rvm
+cd /srv/fortune/current
+rvm use ruby-2.1.2@fortune
+bundle exec unicorn -c config/unicorn/production.rb -E deployment -D
+sudo /etc/init.d/nginx start
+echo "====================== END: `date` ========================"

@@ -6,3 +6,6 @@
 
 ## How to run
     bundle exec rake -P   # to see all rake tasks
+
+## How to restart server
+    bin/restart-server

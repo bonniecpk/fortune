@@ -155,14 +155,10 @@ module Fortune::Analysis
     def notify?
       notification = @investment.notification
 
-      if notification && notification.percent < 0 && profit_delta >= 0
-        return true
-      elsif sell? || loss_beyond_threshold?
-        return true unless notification
-        return notification.percent != profit_delta
-      end
-
-      return false
+      # notification.percent is the stored value from the last delta, which 
+      # is used to determine if a notification needs to be sent.
+      return true unless notification
+      return notification.percent != profit_delta
     end
 
     def notify_buyer
